@@ -3,6 +3,7 @@ import Navbar from './components/Navbar'
 import Home from './pages/Home'
 import Login from './pages/Login'
 import Explore from './pages/Explore'
+import Planner from './pages/Planner'
 import './index.css'
 
 function App() {
@@ -13,6 +14,7 @@ function App() {
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/explore" element={<Explore />} />
+        <Route path="/planner" element={<Planner />} />
 
       </Routes>
     </BrowserRouter>
