@@ -4,6 +4,7 @@ import Home from './pages/Home'
 import Login from './pages/Login'
 import Explore from './pages/Explore'
 import Planner from './pages/Planner'
+import Footer from './components/Footer'
 import './index.css'
 
 function App() {
@@ -17,6 +18,7 @@ function App() {
         <Route path="/planner" element={<Planner />} />
 
       </Routes>
+      <Footer />
     </BrowserRouter>
   )
 }
