@@ -17,7 +17,7 @@ function Navbar() {
           <a href="/explore" className="nav-link">Explore</a>
           <a href="/planner" className="nav-link">Trip Planner</a>
           <a href="/login" className="btn-nav-outline">Sign In</a>
-          <a href="/register" className="btn-nav-primary">Sign Up</a>
+          <a href="/login?mode=register" className="btn-nav-primary">Sign Up</a>
         </div>
 
         {/* Burger for mobile */}

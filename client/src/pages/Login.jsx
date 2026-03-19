@@ -1,9 +1,17 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
+import { useSearchParams } from 'react-router-dom'
 
 function Login() {
+  const [searchParams] = useSearchParams()
   const [mode, setMode] = useState('login') // 'login' or 'register'
   const [role, setRole] = useState('user') // 'user' or 'admin'
   const [form, setForm] = useState({ username: '', password: '', confirmPassword: '' })
+
+  useEffect(() => {
+    if (searchParams.get('mode') === 'register') {
+      setMode('register')
+    }
+  }, [])
 
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
