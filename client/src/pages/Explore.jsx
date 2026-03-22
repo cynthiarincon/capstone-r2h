@@ -1,71 +1,129 @@
-import placeholderMap from '../assets/placeholdermap.png'
+// useState manages component state -- selectedDept, hoveredDept, departments list
+// useEffect runs the API fetch when the page first loads
+import { useState, useEffect } from 'react'
+
+// react-simple-maps library -- ComposableMap is the map wrapper,
+// Geographies loads the GeoJSON shape data, Geography is each individual department shape
+import { ComposableMap, Geographies, Geography } from 'react-simple-maps'
+
+// Free public GeoJSON for Colombia departments
+const COLOMBIA_GEO = 'https://gist.githubusercontent.com/john-guerra/43c7656821069d00dcbc/raw/3aadedf47badbdac823b00dbe259f6bc6d9e1899/colombia.geo.json'
 
 function Explore() {
+  const [departments, setDepartments] = useState([])
+  const [selectedDept, setSelectedDept] = useState(null)
+  const [hoveredDept, setHoveredDept] = useState(null)
+
+  // Fetch all departments from API-Colombia on page load
+  useEffect(() => {
+    fetch('https://api-colombia.com/api/v1/Department')
+      .then(res => res.json())
+      .then(data => setDepartments(data))
+      .catch(err => console.error('Failed to load departments', err))
+  }, [])
+
   return (
     <main className="explore-page">
 
       <h1>Explore Colombia</h1>
-      <p>Discover departments, regions, food, attractions and more.</p>
+      <p>Click a department on the map to learn more about it.</p>
 
-      {/* Region filters */}
-      <div className="region-filters">
-        <button className="filter-btn active">All</button>
-        <button className="filter-btn">Caribe</button>
-        <button className="filter-btn">Andina</button>
-        <button className="filter-btn">Pacífico</button>
-        <button className="filter-btn">Orinoquía</button>
-        <button className="filter-btn">Amazonía</button>
-        <button className="filter-btn">Insular</button>
-      </div>
-      <p>Filter departments by region using the buttons above.</p>
-
-      {/* Map */}
+      {/* ===== INTERACTIVE MAP =====
+          Built with react-simple-maps and Colombia GeoJSON
+          Hover highlights a department, click opens the detail panel */}
       <div className="map-container">
-        <img src={placeholderMap} alt="Map of Colombia" />
-        <p>Placeholder map -- will be replaced with an interactive map built with react-simple-maps. Hover over a department to highlight it and click to see its attractions, dishes, airports and natural areas.</p>
+        <ComposableMap
+          projection="geoMercator"
+          projectionConfig={{ scale: 800, center: [-74, 4] }}
+          style={{ width: '100%', height: 'auto' }}
+        >
+          <Geographies geography={COLOMBIA_GEO}>
+            {({ geographies }) =>
+              geographies.map(geo => (
+                <Geography
+                  key={geo.rsmKey}
+                  geography={geo}
+                  onMouseEnter={() => setHoveredDept(geo.properties.NOMBRE_DPT)}
+                  onMouseLeave={() => setHoveredDept(null)}
+                  onClick={() => {
+                    const match = departments.find(
+                      d => d.name.toLowerCase() === geo.properties.NOMBRE_DPT.toLowerCase()
+                    )
+                    setSelectedDept(match || { name: geo.properties.NOMBRE_DPT })
+                  }}
+                  style={{
+                    default: { fill: '#1a5c38', stroke: '#fff', strokeWidth: 0.5, outline: 'none' },
+                    hover: { fill: '#f4c430', stroke: '#fff', strokeWidth: 0.5, outline: 'none' },
+                    pressed: { fill: '#e63946', stroke: '#fff', strokeWidth: 0.5, outline: 'none' }
+                  }}
+                />
+              ))
+            }
+          </Geographies>
+        </ComposableMap>
+
+        {/* Shows department name on hover */}
+        {hoveredDept && (
+          <p className="map-tooltip">{hoveredDept}</p>
+        )}
       </div>
 
-      {/* Regions */}
-      <h2>Regions of Colombia</h2>
-      <p>Colombia is divided into 6 natural regions. Data pulled from API-Colombia.</p>
-      <div className="regions-grid">
-      </div>
+      {/* ===== DEPARTMENT DETAIL PANEL =====
+          Shows when a department is clicked on the map
+          Displays data from API-Colombia */}
+      {selectedDept && (
+        <div className="dept-panel">
+          <button onClick={() => setSelectedDept(null)}>✕ Close</button>
+          <h2>{selectedDept.name}</h2>
+          <p><strong>Capital:</strong> {selectedDept.cityCapital?.name || '--'}</p>
+          <p><strong>Population:</strong> {selectedDept.population?.toLocaleString() || '--'}</p>
+          <p><strong>Surface:</strong> {selectedDept.surface?.toLocaleString()} km²</p>
+          <p><strong>Municipalities:</strong> {selectedDept.municipalities}</p>
+          <p>{selectedDept.description}</p>
+        </div>
+      )}
 
-      {/* Departments */}
-      <h2>Departments</h2>
-      <p>All 32 departments with capital city and population. Filterable by region.</p>
+      {/* ===== DEPARTMENTS LIST =====
+          Shows all departments as cards below the map */}
+      <h2>All Departments</h2>
       <div className="departments-grid">
+        {departments.map(dept => (
+          <div
+            key={dept.id}
+            className="department-card"
+            onClick={() => setSelectedDept(dept)}
+          >
+            <h3>{dept.name}</h3>
+            <p>Capital: {dept.cityCapital?.name}</p>
+            <p>Population: {dept.population?.toLocaleString()}</p>
+          </div>
+        ))}
       </div>
 
-      {/* Tourist Attractions */}
+      {/* ===== TOURIST ATTRACTIONS =====
+          Coming soon -- will be pulled from /api/v1/Touristic */}
       <h2>Tourist Attractions</h2>
-      <p>Top attractions across Colombia with images, descriptions and locations.</p>
-      <div className="attractions-grid">
-      </div>
+      <p>Coming soon.</p>
 
-      {/* Typical Dishes */}
+      {/* ===== TYPICAL DISHES =====
+          Coming soon -- will be pulled from /api/v1/TypicalDish */}
       <h2>Typical Dishes</h2>
-      <p>Traditional Colombian food by department with ingredients and images.</p>
-      <div className="dishes-grid">
-      </div>
+      <p>Coming soon.</p>
 
-      {/* Natural Areas */}
+      {/* ===== NATURAL AREAS =====
+          Coming soon -- will be pulled from /api/v1/NaturalArea */}
       <h2>Natural Areas</h2>
-      <p>National parks, rainforests, deserts and natural reserves across Colombia.</p>
-      <div className="natural-grid">
-      </div>
+      <p>Coming soon.</p>
 
-      {/* Airports */}
+      {/* ===== AIRPORTS =====
+          Coming soon -- will be pulled from /api/v1/Airport */}
       <h2>Airports</h2>
-      <p>International and national airports by department including IATA codes.</p>
-      <div className="airports-grid">
-      </div>
+      <p>Coming soon.</p>
 
-      {/* About Colombia */}
+      {/* ===== ABOUT COLOMBIA =====
+          Coming soon -- will be pulled from /api/v1/Country/Colombia */}
       <h2>About Colombia</h2>
-      <p>Country overview including flag, currency, languages, population and borders.</p>
-      <div className="overview-grid">
-      </div>
+      <p>Coming soon.</p>
 
     </main>
   )
