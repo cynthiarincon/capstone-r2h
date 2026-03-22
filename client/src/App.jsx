@@ -5,6 +5,8 @@ import Login from './pages/Login'
 import Explore from './pages/Explore'
 import Planner from './pages/Planner'
 import Footer from './components/Footer'
+import Account from './pages/Account'
+import HostDashboard from './pages/HostDashboard'
 import './index.css'
 
 function App() {
