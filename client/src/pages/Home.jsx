@@ -1,51 +1,35 @@
-import { useState, useEffect } from 'react'
-
+// destinations -- hardcoded for now, will eventually pull from API-Colombia
 const destinations = [
   { name: 'Medellín', region: 'Antioquia', tag: 'City of Eternal Spring', color: '#2d6a4f' },
   { name: 'Cartagena', region: 'Bolívar', tag: 'Historic Walled City', color: '#e63946' },
   { name: 'San Andrés', region: 'Archipiélago', tag: 'Caribbean Paradise', color: '#1a4a6b' },
   { name: 'Pereira', region: 'Risaralda', tag: 'Coffee Region', color: '#6b3a1f' },
   { name: 'Amazonas', region: 'Amazonia', tag: 'Jungle Adventure', color: '#1a5c38' },
-  { name: 'La Tatacoa', region: 'Huila', tag: 'Desert & Stars', color: '#c17f3a' }
+  { name: 'La Tatacoa', region: 'Huila', tag: 'Desert & Stars', color: '#c17f3a' },
 ]
 
+// features -- describes what the app does, shown in the features section
 const features = [
   { icon: '🗺️', title: 'Explore 32 Departments', desc: 'Discover every corner of Colombia through an interactive map powered by real data.' },
   { icon: '🌿', title: 'Culture & Cuisine', desc: 'Dive into regional dishes, natural areas, tourist attractions, and local traditions.' },
   { icon: '✈️', title: 'Plan Your Trip', desc: 'Get a personalized AI-powered itinerary based on your travel style and interests.' },
 ]
 
-const heroSlides = [
-  { eyebrow: 'Explore', title: 'Descubre Colombia', subtitle: '32 departments. 6 regions. One unforgettable journey.' },
-  { eyebrow: 'Explore', title: 'La Costa Caribe', subtitle: 'Sun, history, and the warmth of the Caribbean coast.' },
-  { eyebrow: 'Explore', title: 'El Eje Cafetero', subtitle: 'Rolling green hills, coffee farms, and colonial towns.' },
-]
-
 function Home() {
-  const [currentSlide, setCurrentSlide] = useState(0)
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentSlide(prev => (prev + 1) % heroSlides.length)
-    }, 4000)
-    return () => clearInterval(interval)
-  }, [])
-
-  const slide = heroSlides[currentSlide]
-
   return (
     <main>
 
-      {/* ===== HERO ===== */}
+      {/* ===== HERO =====
+          Static hero section with app name, tagline, and two CTA buttons
+          Decorative leaf emojis on left and right sides */}
       <section className="hero">
         <div className="hero-overlay" />
         <div className="leaf leaf-left">🌿</div>
         <div className="leaf leaf-right">🌺</div>
-
         <div className="hero-content">
-          <p className="hero-eyebrow">{slide.eyebrow}</p>
-          <h1 className="hero-title">{slide.title}</h1>
-          <p className="hero-subtitle">{slide.subtitle}</p>
+          <p className="hero-eyebrow">Welcome to</p>
+          <h1 className="hero-title">Explore Colombia</h1>
+          <p className="hero-subtitle">32 departments. 6 regions. One unforgettable journey.</p>
           <div className="hero-buttons">
             <button className="btn-primary">Explore Colombia</button>
             <button className="btn-outline">Plan My Trip</button>
@@ -53,7 +37,9 @@ function Home() {
         </div>
       </section>
 
-      {/* ===== STATS STRIP ===== */}
+      {/* ===== STATS STRIP =====
+          Quick facts about Colombia displayed in a horizontal strip
+          Numbers are hardcoded since they don't change */}
       <section className="stats-strip">
         <div className="stat">
           <span className="stat-number">32</span>
@@ -76,7 +62,9 @@ function Home() {
         </div>
       </section>
 
-      {/* ===== FEATURES ===== */}
+      {/* ===== FEATURES =====
+          Three cards explaining what the app does
+          Maps through the features array above */}
       <section className="features">
         <div className="section-header">
           <p className="section-eyebrow">What you can do</p>
@@ -93,14 +81,18 @@ function Home() {
         </div>
       </section>
 
-      {/* ===== FLOWER DIVIDER ===== */}
+      {/* ===== FLOWER DIVIDER =====
+          Decorative section separator with flower emojis */}
       <div className="flower-divider">
         <span>🌸</span><span>🌺</span><span>🌼</span>
         <span>🌸</span><span>🌺</span><span>🌼</span>
         <span>🌸</span><span>🌺</span><span>🌼</span>
       </div>
 
-      {/* ===== DESTINATIONS ===== */}
+      {/* ===== DESTINATIONS =====
+          Featured destination cards with a color placeholder
+          Will eventually pull real images from API-Colombia
+          Maps through the destinations array above */}
       <section className="destinations">
         <div className="section-header">
           <p className="section-eyebrow">Featured destinations</p>
@@ -121,7 +113,9 @@ function Home() {
         </div>
       </section>
 
-      {/* ===== WHY SIGN UP ===== */}
+      {/* ===== WHY SIGN UP =====
+          Three cards explaining the benefits of creating an account
+          Encourages guests to register */}
       <section className="why-signup">
         <div className="section-header">
           <p className="section-eyebrow">Create a free account</p>
@@ -146,7 +140,9 @@ function Home() {
         </div>
       </section>
 
-      {/* ===== CTA ===== */}
+      {/* ===== CTA =====
+          Final call to action section at the bottom of the page
+          Encourages users to sign up or sign in */}
       <section className="cta">
         <div className="cta-leaves">
           <span>🌿</span><span>🌺</span><span>🌸</span>
