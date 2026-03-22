@@ -1,42 +1,72 @@
-// useState manages component state -- selectedDept, hoveredDept, departments list
-// useEffect runs code when the page first loads
-// useRef gives us a reference to the SVG element so D3 can draw on it
+// hooks I need for this page
 import { useState, useEffect, useRef } from 'react'
 
-// D3 is a data visualization library -- we use it to draw the Colombia map as an SVG
+// d3 helps me draw the map as an SVG
 import * as d3 from 'd3'
 
-// Free public GeoJSON for Colombia departments
+// the colombia map shape data
 const COLOMBIA_GEO = 'https://gist.githubusercontent.com/john-guerra/43c7656821069d00dcbc/raw/3aadedf47badbdac823b00dbe259f6bc6d9e1899/colombia.geo.json'
 
 function Explore() {
-  // Stores all 32 departments from API-Colombia
+  // all my state variables
   const [departments, setDepartments] = useState([])
-  // Stores the department the user clicked on
+  const [touristic, setTouristic] = useState([])
+  const [dishes, setDishes] = useState([])
+  const [airports, setAirports] = useState([])
+  const [festivals, setFestivals] = useState([])
+  const [heritage, setHeritage] = useState([])
+  const [regions, setRegions] = useState([])
   const [selectedDept, setSelectedDept] = useState(null)
-  // Stores the department the user is hovering over
   const [hoveredDept, setHoveredDept] = useState(null)
-  // Reference to the SVG element where D3 draws the map
+  // this connects to the svg element so d3 can draw on it
   const svgRef = useRef(null)
 
-  // ===== FETCH DEPARTMENTS =====
-  // Fetches all departments from API-Colombia when the page loads
+  // fetch all the data I need from api-colombia when the page loads
   useEffect(() => {
     fetch('https://api-colombia.com/api/v1/Department')
-      .then(res => res.json())
+      .then(r => r.json())
       .then(data => setDepartments(data))
       .catch(err => console.error('Failed to load departments', err))
+
+    fetch('https://api-colombia.com/api/v1/TouristicAttraction')
+      .then(r => r.json())
+      .then(data => setTouristic(data))
+      .catch(err => console.error('Failed to load touristic', err))
+
+    fetch('https://api-colombia.com/api/v1/TypicalDish')
+      .then(r => r.json())
+      .then(data => setDishes(data))
+      .catch(err => console.error('Failed to load dishes', err))
+
+    fetch('https://api-colombia.com/api/v1/Airport')
+      .then(r => r.json())
+      .then(data => setAirports(data))
+      .catch(err => console.error('Failed to load airports', err))
+
+    fetch('https://api-colombia.com/api/v1/TraditionalFairAndFestival')
+      .then(r => r.json())
+      .then(data => setFestivals(data))
+      .catch(err => console.error('Failed to load festivals', err))
+
+    fetch('https://api-colombia.com/api/v1/IntangibleHeritage')
+      .then(r => r.json())
+      .then(data => setHeritage(data))
+      .catch(err => console.error('Failed to load heritage', err))
+
+    fetch('https://api-colombia.com/api/v1/Region')
+      .then(r => r.json())
+      .then(data => setRegions(data))
+      .catch(err => console.error('Failed to load regions', err))
   }, [])
 
-  // ===== DRAW MAP =====
-  // Draws the Colombia map using D3 once the GeoJSON is loaded
+  // draw the map once departments are loaded
   useEffect(() => {
     if (!svgRef.current) return
 
     const width = 500
     const height = 600
 
-    // Clear any previous map drawing
+    // clear the map before redrawing
     d3.select(svgRef.current).selectAll('*').remove()
 
     const svg = d3.select(svgRef.current)
@@ -46,7 +76,7 @@ function Explore() {
       .style('width', '100%')
       .style('height', 'auto')
 
-    // Mercator projection centered on Colombia
+    // center the map on colombia
     const projection = d3.geoMercator()
       .center([-74, 4])
       .scale(800)
@@ -54,7 +84,7 @@ function Explore() {
 
     const path = d3.geoPath().projection(projection)
 
-    // Fetch and draw the GeoJSON
+    // load the geojson and draw each department
     d3.json(COLOMBIA_GEO).then(geoData => {
       svg.selectAll('path')
         .data(geoData.features)
@@ -65,100 +95,139 @@ function Explore() {
         .attr('stroke', '#fff')
         .attr('stroke-width', 0.5)
         .style('cursor', 'pointer')
+        // turn yellow on hover
         .on('mouseenter', function(event, d) {
           d3.select(this).attr('fill', '#f4c430')
           setHoveredDept(d.properties.NOMBRE_DPT)
         })
+        // back to green when not hovering
         .on('mouseleave', function() {
           d3.select(this).attr('fill', '#1a5c38')
           setHoveredDept(null)
         })
+        // find the matching department from api-colombia when clicked
         .on('click', function(event, d) {
-  console.log('clicked:', d.properties.NOMBRE_DPT)
-  console.log('departments:', departments.map(d => d.name))
-  const name = d.properties.NOMBRE_DPT
-  const match = departments.find(
-    dept => dept.name.toLowerCase() === name.toLowerCase()
-  )
-  console.log('match:', match)
-  setSelectedDept(match || { name })
-})
+          console.log('clicked:', d.properties.NOMBRE_DPT)
+          const name = d.properties.NOMBRE_DPT
+          const match = departments.find(
+            dept => dept.name.toLowerCase() === name.toLowerCase()
+          )
+          setSelectedDept(match || { name })
+        })
     })
   }, [departments])
+
+  // filter data to only show info for the clicked department
+  const deptTouristic = selectedDept ? touristic.filter(t => t.city?.departmentId === selectedDept.id) : []
+  const deptDishes = selectedDept ? dishes.filter(d => d.departmentId === selectedDept.id) : []
+  const deptAirports = selectedDept ? airports.filter(a => a.deparmentId === selectedDept.id) : []
+  const deptFestivals = selectedDept ? festivals.filter(f => f.city?.departmentId === selectedDept.id) : []
+  const deptHeritage = selectedDept ? heritage.filter(h => h.departmentId === selectedDept.id) : []
+  const deptRegion = selectedDept ? regions.find(r => r.id === selectedDept.regionId)?.name || '--' : '--'
 
   return (
     <main className="explore-page">
 
       <h1>Explore Colombia</h1>
-      <p>Click a department on the map to learn more about it.</p>
+      <p>Hover over a department to see its name. Click to learn more about it.</p>
 
-      {/* ===== INTERACTIVE MAP =====
-          Drawn with D3 using Colombia GeoJSON
-          Hover turns department yellow, click opens detail panel */}
+      {/* map */}
       <div className="map-container">
         <svg ref={svgRef} />
-        {hoveredDept && (
-          <p className="map-tooltip">{hoveredDept}</p>
-        )}
+        {hoveredDept && <p className="map-tooltip">📍 {hoveredDept}</p>}
       </div>
 
-      {/* ===== DEPARTMENT DETAIL PANEL =====
-          Shows when a department is clicked
-          Data comes from API-Colombia */}
-      {selectedDept && (
+      {/* detail panel -- shows when you click a department */}
+      {selectedDept ? (
         <div className="dept-panel">
-          <button onClick={() => setSelectedDept(null)}>✕ Close</button>
+          <button className="close-btn" onClick={() => setSelectedDept(null)}>✕ Close</button>
           <h2>{selectedDept.name}</h2>
+          <p><strong>Region:</strong> {deptRegion}</p>
           <p><strong>Capital:</strong> {selectedDept.cityCapital?.name || '--'}</p>
           <p><strong>Population:</strong> {selectedDept.population?.toLocaleString() || '--'}</p>
           <p><strong>Surface:</strong> {selectedDept.surface?.toLocaleString()} km²</p>
           <p><strong>Municipalities:</strong> {selectedDept.municipalities}</p>
-          <p>{selectedDept.description}</p>
+
+          {/* tourist attractions */}
+          {deptTouristic.length > 0 && (
+            <div>
+              <h3>🎭 Tourist Attractions</h3>
+              {deptTouristic.map(t => (
+                <div key={t.id} className="detail-item">
+                  <strong>{t.name}</strong>
+                  <p className="detail-desc">{t.description}</p>
+                  {t.images?.[0] && <img src={t.images[0]} alt={t.name} className="detail-img" onError={(e) => e.target.style.display = 'none'} />}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* typical dishes */}
+          {deptDishes.length > 0 && (
+            <div>
+              <h3>🍽️ Typical Dishes</h3>
+              {deptDishes.map(d => (
+                <div key={d.id} className="detail-item">
+                  <strong>{d.name}</strong>
+                  <p className="detail-desc">Ingredients: {d.ingredients}</p>
+                  {d.imageUrl && <img src={d.imageUrl} alt={d.name} className="detail-img" onError={(e) => e.target.style.display = 'none'} />}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* festivals */}
+          {deptFestivals.length > 0 && (
+            <div>
+              <h3>🎉 Festivals & Fairs</h3>
+              {deptFestivals.map(f => (
+                <div key={f.id} className="detail-item">
+                  <strong>{f.name}</strong>
+                  <p className="detail-desc">{f.description}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* cultural heritage */}
+          {deptHeritage.length > 0 && (
+            <div>
+              <h3>🏛️ Cultural Heritage</h3>
+              {deptHeritage.map(h => (
+                <div key={h.id} className="detail-item">
+                  <strong>{h.name}</strong>
+                  <p className="detail-desc">{h.description}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* airports */}
+          {deptAirports.length > 0 && (
+            <div>
+              <h3>✈️ Airports</h3>
+              {deptAirports.map(a => (
+                <div key={a.id} className="detail-item">
+                  <strong>{a.name}</strong>
+                  <p className="detail-desc">Type: {a.type} | IATA: {a.iataCode}</p>
+                </div>
+              ))}
+            </div>
+          )}
+
+        </div>
+      ) : (
+        <div className="dept-panel">
+          <h2>Click a department on the map</h2>
+          <p>Select any department to see its region, capital, population, tourist attractions, typical dishes, festivals, cultural heritage, and airports.</p>
         </div>
       )}
 
-      {/* ===== DEPARTMENTS LIST =====
-          All 32 departments as clickable cards
-          Clicking a card opens the same detail panel as clicking the map */}
-      <h2>All Departments</h2>
-      <div className="departments-grid">
-        {departments.map(dept => (
-          <div
-            key={dept.id}
-            className="department-card"
-            onClick={() => setSelectedDept(dept)}
-          >
-            <h3>{dept.name}</h3>
-            <p>Capital: {dept.cityCapital?.name}</p>
-            <p>Population: {dept.population?.toLocaleString()}</p>
-          </div>
-        ))}
+      {/* host listings -- will come from the database later */}
+      <div>
+        <h2>Local Experiences</h2>
+        <p>Host-offered experiences will appear here once hosts start creating listings.</p>
       </div>
-
-      {/* ===== TOURIST ATTRACTIONS =====
-          Coming soon -- will be pulled from /api/v1/Touristic */}
-      <h2>Tourist Attractions</h2>
-      <p>Coming soon.</p>
-
-      {/* ===== TYPICAL DISHES =====
-          Coming soon -- will be pulled from /api/v1/TypicalDish */}
-      <h2>Typical Dishes</h2>
-      <p>Coming soon.</p>
-
-      {/* ===== NATURAL AREAS =====
-          Coming soon -- will be pulled from /api/v1/NaturalArea */}
-      <h2>Natural Areas</h2>
-      <p>Coming soon.</p>
-
-      {/* ===== AIRPORTS =====
-          Coming soon -- will be pulled from /api/v1/Airport */}
-      <h2>Airports</h2>
-      <p>Coming soon.</p>
-
-      {/* ===== ABOUT COLOMBIA =====
-          Coming soon -- will be pulled from /api/v1/Country/Colombia */}
-      <h2>About Colombia</h2>
-      <p>Coming soon.</p>
 
     </main>
   )
