@@ -63,8 +63,8 @@ function Explore() {
   useEffect(() => {
     if (!svgRef.current) return
 
-    const width = 500
-    const height = 600
+    const width = 800
+    const height = 700
 
     // clear the map before redrawing
     d3.select(svgRef.current).selectAll('*').remove()
@@ -78,8 +78,8 @@ function Explore() {
 
     // center the map on colombia
     const projection = d3.geoMercator()
-      .center([-74, 4])
-      .scale(800)
+      .center([-74, 5])
+      .scale(1800)
       .translate([width / 2, height / 2])
 
     const path = d3.geoPath().projection(projection)
