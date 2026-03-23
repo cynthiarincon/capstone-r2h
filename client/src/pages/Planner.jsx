@@ -1,6 +1,8 @@
 // useState manages all the selections and the itinerary output
 import { useState } from 'react'
 
+import ReactMarkdown from 'react-markdown'
+
 // placeholder listings -- will be fetched from the database by region later
 const placeholderListings = [
   { id: 1, title: 'City Walking Tour', host: 'Carlos M.', price: '$20', duration: '2 hours' },
@@ -171,7 +173,7 @@ function Planner() {
       {itinerary && (
         <div className="itinerary-output">
           <h2>Your Itinerary</h2>
-          <p>{itinerary}</p>
+          <ReactMarkdown>{itinerary}</ReactMarkdown>
           <button className="btn-primary">Save Trip</button>
         </div>
       )}
