@@ -1,236 +1,234 @@
-// hooks I need for this page
-import { useState, useEffect, useRef } from 'react'
+// useState manages all the selections and the itinerary output
+// useEffect runs code when the page first loads
+import { useState, useEffect } from 'react'
 
-// d3 helps me draw the map as an SVG
-import * as d3 from 'd3'
+// react-markdown renders the AI itinerary with proper formatting
+// bold text, bullet points, and headers instead of plain text
+import ReactMarkdown from 'react-markdown'
 
-// the colombia map shape data
-const COLOMBIA_GEO = 'https://gist.githubusercontent.com/john-guerra/43c7656821069d00dcbc/raw/3aadedf47badbdac823b00dbe259f6bc6d9e1899/colombia.geo.json'
+// placeholder listings -- will be fetched from the database by region later
+const placeholderListings = [
+  { id: 1, title: 'City Walking Tour', host: 'Carlos M.', price: '$20', duration: '2 hours' },
+  { id: 2, title: 'Traditional Cooking Class', host: 'Maria L.', price: '$35', duration: '3 hours' },
+  { id: 3, title: 'Coffee Farm Visit', host: 'Juan P.', price: '$25', duration: '4 hours' },
+]
 
-function Explore() {
-  // all my state variables
-  const [departments, setDepartments] = useState([])
-  const [touristic, setTouristic] = useState([])
-  const [dishes, setDishes] = useState([])
-  const [airports, setAirports] = useState([])
-  const [festivals, setFestivals] = useState([])
-  const [heritage, setHeritage] = useState([])
-  const [regions, setRegions] = useState([])
-  const [selectedDept, setSelectedDept] = useState(null)
-  const [hoveredDept, setHoveredDept] = useState(null)
-  // this connects to the svg element so d3 can draw on it
-  const svgRef = useRef(null)
+const regions = ['Caribe', 'Andina', 'Pacífico', 'Orinoquía', 'Amazonía', 'Insular']
+const durations = ['1-3 days', '4-7 days', '8-14 days', '15+ days']
+const styles = ['Adventure', 'Culture', 'Food', 'Relaxation', 'Mix of Everything']
+const groups = ['Solo', 'Couple', 'Family', 'Friends']
 
-  // fetch all the data I need from api-colombia when the page loads
+function Planner() {
+
+  // ===== STATE =====
+  // stores the logged in users info
+  const [user, setUser] = useState(null)
+  // stores the users selections
+  const [region, setRegion] = useState(null)
+  const [duration, setDuration] = useState(null)
+  const [style, setStyle] = useState(null)
+  const [group, setGroup] = useState(null)
+  // stores which host listings the user selected
+  const [selectedListings, setSelectedListings] = useState([])
+  // stores the itinerary returned from Groq
+  const [itinerary, setItinerary] = useState(null)
+  // tracks if the app is waiting for Groq to respond
+  const [loading, setLoading] = useState(false)
+
+  // ===== CHECK IF LOGGED IN =====
+  // runs once when the page loads
+  // if there is no token the user is not logged in
+  // redirect them to the login page
   useEffect(() => {
-    fetch('https://api-colombia.com/api/v1/Department')
-      .then(r => r.json())
-      .then(data => setDepartments(data))
-      .catch(err => console.error('Failed to load departments', err))
-
-    fetch('https://api-colombia.com/api/v1/TouristicAttraction')
-      .then(r => r.json())
-      .then(data => setTouristic(data))
-      .catch(err => console.error('Failed to load touristic', err))
-
-    fetch('https://api-colombia.com/api/v1/TypicalDish')
-      .then(r => r.json())
-      .then(data => setDishes(data))
-      .catch(err => console.error('Failed to load dishes', err))
-
-    fetch('https://api-colombia.com/api/v1/Airport')
-      .then(r => r.json())
-      .then(data => setAirports(data))
-      .catch(err => console.error('Failed to load airports', err))
-
-    fetch('https://api-colombia.com/api/v1/TraditionalFairAndFestival')
-      .then(r => r.json())
-      .then(data => setFestivals(data))
-      .catch(err => console.error('Failed to load festivals', err))
-
-    fetch('https://api-colombia.com/api/v1/IntangibleHeritage')
-      .then(r => r.json())
-      .then(data => setHeritage(data))
-      .catch(err => console.error('Failed to load heritage', err))
-
-    fetch('https://api-colombia.com/api/v1/Region')
-      .then(r => r.json())
-      .then(data => setRegions(data))
-      .catch(err => console.error('Failed to load regions', err))
+    const token = localStorage.getItem('token')
+    const username = localStorage.getItem('username')
+    if (!token) {
+      window.location.href = '/login'
+      return
+    }
+    // store the user info so I can use it on the page
+    setUser({ token, username })
   }, [])
+  // the empty [] means this only runs ONCE when the page loads
 
-  // draw the map once departments are loaded
-  useEffect(() => {
-    if (!svgRef.current) return
+  // ===== TOGGLE LISTING =====
+  // toggles a listing on or off when clicked
+  // if already selected remove it, if not selected add it
+  const toggleListing = (listing) => {
+    if (selectedListings.find(l => l.id === listing.id)) {
+      setSelectedListings(selectedListings.filter(l => l.id !== listing.id))
+    } else {
+      setSelectedListings([...selectedListings, listing])
+    }
+  }
 
-    const width = 800
-    const height = 700
-
-    // clear the map before redrawing
-    d3.select(svgRef.current).selectAll('*').remove()
-
-    const svg = d3.select(svgRef.current)
-      .attr('width', width)
-      .attr('height', height)
-      .attr('viewBox', `0 0 ${width} ${height}`)
-      .style('width', '100%')
-      .style('height', 'auto')
-
-    // center the map on colombia
-    const projection = d3.geoMercator()
-      .center([-74, 5])
-      .scale(1800)
-      .translate([width / 2, height / 2])
-
-    const path = d3.geoPath().projection(projection)
-
-    // load the geojson and draw each department
-    d3.json(COLOMBIA_GEO).then(geoData => {
-      svg.selectAll('path')
-        .data(geoData.features)
-        .enter()
-        .append('path')
-        .attr('d', path)
-        .attr('fill', '#1a5c38')
-        .attr('stroke', '#fff')
-        .attr('stroke-width', 0.5)
-        .style('cursor', 'pointer')
-        // turn yellow on hover
-        .on('mouseenter', function(event, d) {
-          d3.select(this).attr('fill', '#f4c430')
-          setHoveredDept(d.properties.NOMBRE_DPT)
-        })
-        // back to green when not hovering
-        .on('mouseleave', function() {
-          d3.select(this).attr('fill', '#1a5c38')
-          setHoveredDept(null)
-        })
-        // find the matching department from api-colombia when clicked
-        .on('click', function(event, d) {
-          console.log('clicked:', d.properties.NOMBRE_DPT)
-          const name = d.properties.NOMBRE_DPT
-          const match = departments.find(
-            dept => dept.name.toLowerCase() === name.toLowerCase()
-          )
-          setSelectedDept(match || { name })
-        })
-    })
-  }, [departments])
-
-  // filter data to only show info for the clicked department
-  const deptTouristic = selectedDept ? touristic.filter(t => t.city?.departmentId === selectedDept.id) : []
-  const deptDishes = selectedDept ? dishes.filter(d => d.departmentId === selectedDept.id) : []
-  const deptAirports = selectedDept ? airports.filter(a => a.deparmentId === selectedDept.id) : []
-  const deptFestivals = selectedDept ? festivals.filter(f => f.city?.departmentId === selectedDept.id) : []
-  const deptHeritage = selectedDept ? heritage.filter(h => h.departmentId === selectedDept.id) : []
-  const deptRegion = selectedDept ? regions.find(r => r.id === selectedDept.regionId)?.name || '--' : '--'
+  // ===== GENERATE ITINERARY =====
+  // sends the users selections to the backend which calls Groq AI
+  // Groq returns a personalized Colombia itinerary
+  const handleGenerate = async () => {
+    if (!region || !duration || !style || !group) {
+      alert('Please complete all steps before generating your itinerary.')
+      return
+    }
+    setLoading(true)
+    setItinerary(null)
+    try {
+      const response = await fetch('http://localhost:3000/api/generateTrip', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ region, duration, style, group, selectedListings })
+      })
+      const data = await response.json()
+      setItinerary(data.itinerary)
+    } catch (err) {
+      alert('Failed to generate itinerary. Please try again.')
+    } finally {
+      setLoading(false)
+    }
+  }
 
   return (
-    <main className="explore-page">
+    <main className="planner-page">
 
-      <h1>Explore Colombia</h1>
-      <p>Hover over a department to see its name. Click to learn more about it.</p>
+      <h1>Trip Planner</h1>
+      <p>Answer a few questions and our AI will build you a personalized Colombia itinerary.</p>
 
-      {/* map */}
-      <div className="map-container">
-        <svg ref={svgRef} />
-        {hoveredDept && <p className="map-tooltip">📍 {hoveredDept}</p>}
+      {/* step 1 -- pick a region */}
+      <h2>Where do you want to go?</h2>
+      <p>Select a region of Colombia.</p>
+      <div className="planner-options">
+        {regions.map(r => (
+          <button
+            key={r}
+            className={`option-btn ${region === r ? 'selected' : ''}`}
+            onClick={() => setRegion(r)}
+          >
+            {r}
+          </button>
+        ))}
       </div>
 
-      {/* detail panel -- shows when you click a department */}
-      {selectedDept ? (
-        <div className="dept-panel">
-          <button className="close-btn" onClick={() => setSelectedDept(null)}>✕ Close</button>
-          <h2>{selectedDept.name}</h2>
-          <p><strong>Region:</strong> {deptRegion}</p>
-          <p><strong>Capital:</strong> {selectedDept.cityCapital?.name || '--'}</p>
-          <p><strong>Population:</strong> {selectedDept.population?.toLocaleString() || '--'}</p>
-          <p><strong>Surface:</strong> {selectedDept.surface?.toLocaleString()} km²</p>
-          <p><strong>Municipalities:</strong> {selectedDept.municipalities}</p>
+      {/* step 2 -- pick a duration */}
+      <h2>How many days?</h2>
+      <p>Choose how long your trip will be.</p>
+      <div className="planner-options">
+        {durations.map(d => (
+          <button
+            key={d}
+            className={`option-btn ${duration === d ? 'selected' : ''}`}
+            onClick={() => setDuration(d)}
+          >
+            {d}
+          </button>
+        ))}
+      </div>
 
-          {/* tourist attractions */}
-          {deptTouristic.length > 0 && (
-            <div>
-              <h3>🎭 Tourist Attractions</h3>
-              {deptTouristic.map(t => (
-                <div key={t.id} className="detail-item">
-                  <strong>{t.name}</strong>
-                  <p className="detail-desc">{t.description}</p>
-                  {t.images?.[0] && <img src={t.images[0]} alt={t.name} className="detail-img" onError={(e) => e.target.style.display = 'none'} />}
-                </div>
-              ))}
-            </div>
-          )}
+      {/* step 3 -- pick a travel style */}
+      <h2>What is your travel style?</h2>
+      <p>Pick what matters most to you on this trip.</p>
+      <div className="planner-options">
+        {styles.map(s => (
+          <button
+            key={s}
+            className={`option-btn ${style === s ? 'selected' : ''}`}
+            onClick={() => setStyle(s)}
+          >
+            {s}
+          </button>
+        ))}
+      </div>
 
-          {/* typical dishes */}
-          {deptDishes.length > 0 && (
-            <div>
-              <h3>🍽️ Typical Dishes</h3>
-              {deptDishes.map(d => (
-                <div key={d.id} className="detail-item">
-                  <strong>{d.name}</strong>
-                  <p className="detail-desc">Ingredients: {d.ingredients}</p>
-                  {d.imageUrl && <img src={d.imageUrl} alt={d.name} className="detail-img" onError={(e) => e.target.style.display = 'none'} />}
-                </div>
-              ))}
-            </div>
-          )}
+      {/* step 4 -- pick a travel group */}
+      <h2>Who are you traveling with?</h2>
+      <p>This helps the AI personalize your itinerary.</p>
+      <div className="planner-options">
+        {groups.map(g => (
+          <button
+            key={g}
+            className={`option-btn ${group === g ? 'selected' : ''}`}
+            onClick={() => setGroup(g)}
+          >
+            {g}
+          </button>
+        ))}
+      </div>
 
-          {/* festivals */}
-          {deptFestivals.length > 0 && (
-            <div>
-              <h3>🎉 Festivals & Fairs</h3>
-              {deptFestivals.map(f => (
-                <div key={f.id} className="detail-item">
-                  <strong>{f.name}</strong>
-                  <p className="detail-desc">{f.description}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* cultural heritage */}
-          {deptHeritage.length > 0 && (
-            <div>
-              <h3>🏛️ Cultural Heritage</h3>
-              {deptHeritage.map(h => (
-                <div key={h.id} className="detail-item">
-                  <strong>{h.name}</strong>
-                  <p className="detail-desc">{h.description}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* airports */}
-          {deptAirports.length > 0 && (
-            <div>
-              <h3>✈️ Airports</h3>
-              {deptAirports.map(a => (
-                <div key={a.id} className="detail-item">
-                  <strong>{a.name}</strong>
-                  <p className="detail-desc">Type: {a.type} | IATA: {a.iataCode}</p>
-                </div>
-              ))}
-            </div>
-          )}
-
-        </div>
-      ) : (
-        <div className="dept-panel">
-          <h2>Click a department on the map</h2>
-          <p>Select any department to see its region, capital, population, tourist attractions, typical dishes, festivals, cultural heritage, and airports.</p>
+      {/* step 5 -- host listings, only shows after region is selected */}
+      {region && (
+        <div className="listings-step">
+          <h2>Add local experiences to your trip</h2>
+          <p>Select any host experiences you want included in your itinerary. These will be woven into your trip plan by the AI.</p>
+          <div className="listings-grid">
+            {placeholderListings.map(listing => (
+              <div
+                key={listing.id}
+                className={`listing-card ${selectedListings.find(l => l.id === listing.id) ? 'selected' : ''}`}
+                onClick={() => toggleListing(listing)}
+              >
+                <h3>{listing.title}</h3>
+                <p>Host: {listing.host}</p>
+                <p>Duration: {listing.duration}</p>
+                <p>Price: {listing.price}</p>
+                <p>{selectedListings.find(l => l.id === listing.id) ? '✓ Added' : '+ Add to trip'}</p>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 
-      {/* host listings -- will come from the database later */}
-      <div>
-        <h2>Local Experiences</h2>
-        <p>Host-offered experiences will appear here once hosts start creating listings.</p>
+      {/* bookmarked listings -- will pull from the users saved listings once backend is connected */}
+      {region && (
+        <div className="listings-step">
+          <h2>Your Bookmarked Experiences</h2>
+          <p>Experiences you bookmarked from the Explore page will appear here.</p>
+          <div className="listings-grid">
+            {/* bookmarked listing cards will go here once backend is connected */}
+          </div>
+        </div>
+      )}
+
+      {/* generate button -- sends selections to Groq via the backend */}
+      <button
+        className="btn-primary"
+        onClick={handleGenerate}
+        disabled={loading}
+      >
+        {loading ? 'Generating...' : 'Generate My Itinerary'}
+      </button>
+
+      {/* itinerary output -- shows when Groq returns a response
+          react-markdown renders the bold text, bullet points, and headers properly
+          save trip button only shows when user is logged in */}
+      {itinerary && (
+        <div className="itinerary-output">
+          <h2>Your Itinerary</h2>
+          <ReactMarkdown>{itinerary}</ReactMarkdown>
+          {user && (
+            <button className="btn-primary">Save Trip</button>
+          )}
+        </div>
+      )}
+
+      {/* placeholder -- shows before the user generates */}
+      {!itinerary && !loading && (
+        <div className="itinerary-placeholder">
+          <h2>Your Itinerary</h2>
+          <p>Complete the steps above and click Generate to see your personalized Colombia itinerary here.</p>
+        </div>
+      )}
+
+      {/* saved trips -- shows different content based on login state */}
+      <div className="saved-trips">
+        <h2>Your Saved Trips</h2>
+        {user ? (
+          <p>Your saved itineraries will appear here once you save a trip!</p>
+        ) : (
+          <p>Sign in to save and view your past itineraries.</p>
+        )}
       </div>
 
     </main>
   )
 }
 
-export default Explore
+export default Planner
