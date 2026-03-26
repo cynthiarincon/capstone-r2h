@@ -31,8 +31,12 @@ function Home() {
           <h1 className="hero-title">Explore Colombia</h1>
           <p className="hero-subtitle">32 departments. 6 regions. One unforgettable journey.</p>
           <div className="hero-buttons">
-            <button className="btn-primary">Explore Colombia</button>
-            <button className="btn-outline">Plan My Trip</button>
+            <button className="btn-primary" onClick={() => window.location.href = '/explore'}>
+  Explore Colombia
+</button>
+            <button className="btn-outline" onClick={() => window.location.href = '/planner'}>
+  Plan My Trip
+</button>
           </div>
         </div>
       </section>

@@ -1,6 +1,9 @@
 // useState manages all the selections and the itinerary output
-import { useState } from 'react'
+// useEffect runs code when the page first loads
+import { useState, useEffect } from 'react'
 
+// react-markdown renders the AI itinerary with proper formatting
+// bold text, bullet points, and headers instead of plain text
 import ReactMarkdown from 'react-markdown'
 
 // placeholder listings -- will be fetched from the database by region later
@@ -16,6 +19,8 @@ const styles = ['Adventure', 'Culture', 'Food', 'Relaxation', 'Mix of Everything
 const groups = ['Solo', 'Couple', 'Family', 'Friends']
 
 function Planner() {
+
+  // ===== STATE =====
   // stores the users selections
   const [region, setRegion] = useState(null)
   const [duration, setDuration] = useState(null)
@@ -23,12 +28,26 @@ function Planner() {
   const [group, setGroup] = useState(null)
   // stores which host listings the user selected
   const [selectedListings, setSelectedListings] = useState([])
-  // stores the itinerary returned from gemini
+  // stores the itinerary returned from Groq
   const [itinerary, setItinerary] = useState(null)
-  // tracks if the app is waiting for gemini to respond
+  // tracks if the app is waiting for Groq to respond
   const [loading, setLoading] = useState(false)
 
+  // ===== CHECK IF LOGGED IN =====
+  // runs once when the page loads
+  // if there is no token the user is not logged in
+  // redirect them to the login page
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    if (!token) {
+      window.location.href = '/login'
+    }
+  }, [])
+  // the empty [] means this only runs ONCE when the page loads
+
+  // ===== TOGGLE LISTING =====
   // toggles a listing on or off when clicked
+  // if already selected remove it, if not selected add it
   const toggleListing = (listing) => {
     if (selectedListings.find(l => l.id === listing.id)) {
       setSelectedListings(selectedListings.filter(l => l.id !== listing.id))
@@ -37,7 +56,9 @@ function Planner() {
     }
   }
 
-  // sends the users selections to the backend which calls gemini
+  // ===== GENERATE ITINERARY =====
+  // sends the users selections to the backend which calls Groq AI
+  // Groq returns a personalized Colombia itinerary
   const handleGenerate = async () => {
     if (!region || !duration || !style || !group) {
       alert('Please complete all steps before generating your itinerary.')
@@ -126,7 +147,7 @@ function Planner() {
         ))}
       </div>
 
-      {/* step 5 -- pick host listings (only shows after region is selected) */}
+      {/* step 5 -- host listings, only shows after region is selected */}
       {region && (
         <div className="listings-step">
           <h2>Add local experiences to your trip</h2>
@@ -153,14 +174,14 @@ function Planner() {
       {region && (
         <div className="listings-step">
           <h2>Your Bookmarked Experiences</h2>
-          <p>Experiences you bookmarked from the Explore page will appear here. Sign in to see your bookmarks.</p>
+          <p>Experiences you bookmarked from the Explore page will appear here.</p>
           <div className="listings-grid">
             {/* bookmarked listing cards will go here once backend is connected */}
           </div>
         </div>
       )}
 
-      {/* generate button -- sends selections to gemini via the backend */}
+      {/* generate button -- sends selections to Groq via the backend */}
       <button
         className="btn-primary"
         onClick={handleGenerate}
@@ -169,7 +190,8 @@ function Planner() {
         {loading ? 'Generating...' : 'Generate My Itinerary'}
       </button>
 
-      {/* itinerary output -- shows when gemini returns a response */}
+      {/* itinerary output -- shows when Groq returns a response
+          react-markdown renders the bold text, bullet points, and headers properly */}
       {itinerary && (
         <div className="itinerary-output">
           <h2>Your Itinerary</h2>
