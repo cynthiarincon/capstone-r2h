@@ -1,41 +1,66 @@
-// Account page -- shown to logged in users
-// Displays saved trips and bookmarked host listings
+// useState manages the user info and saved trips
+// useEffect fetches data when the page loads
+import { useState, useEffect } from 'react'
 
 function Account() {
+  // stores the logged in users info
+  const [user, setUser] = useState(null)
+  // stores the users saved trips
+  const [trips, setTrips] = useState([])
+
+  // check if logged in and fetch saved trips when page loads
+  useEffect(() => {
+    const token = localStorage.getItem('token')
+    const username = localStorage.getItem('username')
+    const role = localStorage.getItem('role')
+
+    if (!token) {
+      window.location.href = '/login'
+      return
+    }
+
+    setUser({ username, role })
+
+    // fetch saved trips from the database
+    fetch('http://localhost:3000/api/trips', {
+      headers: { Authorization: `Bearer ${token}` }
+    })
+      .then(r => r.json())
+      .then(data => setTrips(data))
+      .catch(err => console.error('Failed to load trips', err))
+  }, [])
+
   return (
     <main className="account-page">
 
-      <h1>My Account</h1>
+      {/* welcome message with username */}
+      <h1>Welcome back, {user?.username}! 🌿</h1>
+      <p>Here are your saved trips and experiences.</p>
 
-      {/* ===== USER INFO =====
-          Will show username and account type (user or host)
-          Data pulled from JWT token / backend */}
+      {/* account info */}
       <div className="account-info">
-        <h2>Welcome back!</h2>
-        <p>Username: --</p>
-        <p>Account type: User</p>
+        <p><strong>Username:</strong> {user?.username}</p>
+        <p><strong>Account type:</strong> {user?.role === 'host' ? 'Host' : 'User'}</p>
       </div>
 
-      {/* ===== SAVED TRIPS =====
-          Shows all itineraries the user has generated and saved
-          Data pulled from /api/trips */}
+      {/* saved trips */}
       <div className="saved-trips">
         <h2>My Saved Trips</h2>
-        <p>Your saved itineraries will appear here.</p>
-        <div className="trips-grid">
-          {/* trip cards will go here */}
-        </div>
-      </div>
-
-      {/* ===== BOOKMARKED LISTINGS =====
-          Shows all host listings the user has bookmarked from the Explore page
-          Data pulled from /api/bookmarks */}
-      <div className="bookmarked-listings">
-        <h2>Bookmarked Experiences</h2>
-        <p>Host experiences you have saved from the Explore page will appear here.</p>
-        <div className="listings-grid">
-          {/* listing cards will go here */}
-        </div>
+        {trips.length === 0 ? (
+          <p>You have no saved trips yet. Generate one on the Trip Planner!</p>
+        ) : (
+          <div className="trips-grid">
+            {trips.map(trip => (
+              <div key={trip.id} className="listing-card">
+                <h3>{trip.region}</h3>
+                <p>{trip.duration} | {trip.style} | {trip.travel_group}</p>
+                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                  Saved on {new Date(trip.created_at).toLocaleDateString()}
+                </p>
+              </div>
+            ))}
+          </div>
+        )}
       </div>
 
     </main>

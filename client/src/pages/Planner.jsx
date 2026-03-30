@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react'
 
 // react-markdown renders the AI itinerary with proper formatting
-// bold text, bullet points, and headers instead of plain text
 import ReactMarkdown from 'react-markdown'
 
 // placeholder listings -- will be fetched from the database by region later
@@ -21,33 +20,31 @@ const groups = ['Solo', 'Couple', 'Family', 'Friends']
 function Planner() {
 
   // ===== STATE =====
-  // stores the users selections
+  const [user, setUser] = useState(null)
   const [region, setRegion] = useState(null)
   const [duration, setDuration] = useState(null)
   const [style, setStyle] = useState(null)
   const [group, setGroup] = useState(null)
-  // stores which host listings the user selected
   const [selectedListings, setSelectedListings] = useState([])
-  // stores the itinerary returned from Groq
   const [itinerary, setItinerary] = useState(null)
-  // tracks if the app is waiting for Groq to respond
   const [loading, setLoading] = useState(false)
+  // stores any error message to show in the form
+  const [error, setError] = useState('')
 
   // ===== CHECK IF LOGGED IN =====
   // runs once when the page loads
-  // if there is no token the user is not logged in
-  // redirect them to the login page
+  // if there is no token redirect to login
   useEffect(() => {
     const token = localStorage.getItem('token')
+    const username = localStorage.getItem('username')
     if (!token) {
       window.location.href = '/login'
+      return
     }
+    setUser({ token, username })
   }, [])
-  // the empty [] means this only runs ONCE when the page loads
 
   // ===== TOGGLE LISTING =====
-  // toggles a listing on or off when clicked
-  // if already selected remove it, if not selected add it
   const toggleListing = (listing) => {
     if (selectedListings.find(l => l.id === listing.id)) {
       setSelectedListings(selectedListings.filter(l => l.id !== listing.id))
@@ -57,13 +54,13 @@ function Planner() {
   }
 
   // ===== GENERATE ITINERARY =====
-  // sends the users selections to the backend which calls Groq AI
-  // Groq returns a personalized Colombia itinerary
   const handleGenerate = async () => {
+    // show inline error instead of alert
     if (!region || !duration || !style || !group) {
-      alert('Please complete all steps before generating your itinerary.')
+      setError('Please complete all steps before generating your itinerary.')
       return
     }
+    setError('')
     setLoading(true)
     setItinerary(null)
     try {
@@ -75,7 +72,8 @@ function Planner() {
       const data = await response.json()
       setItinerary(data.itinerary)
     } catch (err) {
-      alert('Failed to generate itinerary. Please try again.')
+      // show inline error instead of alert
+      setError('Failed to generate itinerary. Please try again.')
     } finally {
       setLoading(false)
     }
@@ -147,11 +145,11 @@ function Planner() {
         ))}
       </div>
 
-      {/* step 5 -- host listings, only shows after region is selected */}
+      {/* step 5 -- host listings */}
       {region && (
         <div className="listings-step">
           <h2>Add local experiences to your trip</h2>
-          <p>Select any host experiences you want included in your itinerary. These will be woven into your trip plan by the AI.</p>
+          <p>Select any host experiences you want included in your itinerary.</p>
           <div className="listings-grid">
             {placeholderListings.map(listing => (
               <div
@@ -170,18 +168,14 @@ function Planner() {
         </div>
       )}
 
-      {/* bookmarked listings -- will pull from the users saved listings once backend is connected */}
-      {region && (
-        <div className="listings-step">
-          <h2>Your Bookmarked Experiences</h2>
-          <p>Experiences you bookmarked from the Explore page will appear here.</p>
-          <div className="listings-grid">
-            {/* bookmarked listing cards will go here once backend is connected */}
-          </div>
-        </div>
+      {/* inline error message -- shows instead of alert */}
+      {error && (
+        <p style={{ color: 'var(--coral-red)', fontSize: '0.9rem', marginBottom: '1rem', fontWeight: '600' }}>
+          {error}
+        </p>
       )}
 
-      {/* generate button -- sends selections to Groq via the backend */}
+      {/* generate button */}
       <button
         className="btn-primary"
         onClick={handleGenerate}
@@ -190,13 +184,14 @@ function Planner() {
         {loading ? 'Generating...' : 'Generate My Itinerary'}
       </button>
 
-      {/* itinerary output -- shows when Groq returns a response
-          react-markdown renders the bold text, bullet points, and headers properly */}
+      {/* itinerary output */}
       {itinerary && (
         <div className="itinerary-output">
           <h2>Your Itinerary</h2>
           <ReactMarkdown>{itinerary}</ReactMarkdown>
-          <button className="btn-primary">Save Trip</button>
+          {user && (
+            <button className="btn-primary">Save Trip</button>
+          )}
         </div>
       )}
 
@@ -208,10 +203,14 @@ function Planner() {
         </div>
       )}
 
-      {/* saved trips -- will show real saved trips when backend is connected */}
+      {/* saved trips */}
       <div className="saved-trips">
         <h2>Your Saved Trips</h2>
-        <p>Sign in to save and view your past itineraries.</p>
+        {user ? (
+          <p>Your saved itineraries will appear here once you save a trip!</p>
+        ) : (
+          <p>Sign in to save and view your past itineraries.</p>
+        )}
       </div>
 
     </main>

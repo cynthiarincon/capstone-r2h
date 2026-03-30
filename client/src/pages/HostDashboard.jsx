@@ -5,10 +5,7 @@ import { useState, useEffect } from 'react'
 function HostDashboard() {
 
   // ===== STATE =====
-  // controls whether the create listing form is visible
   const [showForm, setShowForm] = useState(false)
-
-  // stores what the host types into the create listing form
   const [form, setForm] = useState({
     title: '',
     description: '',
@@ -17,29 +14,26 @@ function HostDashboard() {
     duration: '',
     contact: ''
   })
-
-  // stores the hosts listings fetched from the database
   const [listings, setListings] = useState([])
-
-  // stores any contact validation error
   const [contactError, setContactError] = useState('')
+  // stores success or error messages to show in the form
+  const [message, setMessage] = useState({ text: '', type: '' })
+  // stores the logged in hosts username
+  const [username, setUsername] = useState('')
 
   // ===== CHECK IF LOGGED IN =====
-  // runs once when the page loads
-  // if no token redirect to login
   useEffect(() => {
     const token = localStorage.getItem('token')
+    const storedUsername = localStorage.getItem('username')
     if (!token) {
       window.location.href = '/login'
       return
     }
-    // fetch this hosts listings from the database
+    setUsername(storedUsername)
     fetchMyListings()
   }, [])
-  // empty [] means this only runs ONCE when the page loads
 
   // ===== FETCH MY LISTINGS =====
-  // gets all listings created by this host from the database
   const fetchMyListings = async () => {
     try {
       const token = localStorage.getItem('token')
@@ -54,18 +48,14 @@ function HostDashboard() {
   }
 
   // ===== HANDLE CHANGE =====
-  // updates the matching form field every time the host types
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
   // ===== VALIDATE CONTACT =====
-  // makes sure the contact number is in the right format
-  // only allows numbers, +, spaces, dashes, and parentheses
   const validateContact = (value) => {
     const validFormat = /^[0-9+\s\-()]+$/.test(value)
     const validLength = value.length >= 7
-
     if (!validFormat) {
       setContactError('Only numbers, +, dashes, and spaces allowed')
     } else if (!validLength) {
@@ -76,13 +66,13 @@ function HostDashboard() {
   }
 
   // ===== HANDLE SUBMIT =====
-  // sends the form data to the backend to save the listing
   const handleSubmit = async (e) => {
     e.preventDefault()
+    setMessage({ text: '', type: '' })
 
-    // dont submit if there is a contact validation error
+    // show inline error instead of alert
     if (contactError) {
-      alert('Please fix the contact number before submitting.')
+      setMessage({ text: 'Please fix the contact number before submitting.', type: 'error' })
       return
     }
 
@@ -92,31 +82,28 @@ function HostDashboard() {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          // send the token so the backend knows which host is creating this
           Authorization: `Bearer ${token}`
         },
         body: JSON.stringify(form)
       })
       const data = await response.json()
       if (response.ok) {
-        alert('Listing created successfully!')
-        // reset the form
+        // show success message in the form instead of alert
+        setMessage({ text: 'Listing created successfully!', type: 'success' })
         setForm({ title: '', description: '', region: '', price: '', duration: '', contact: '' })
         setContactError('')
         setShowForm(false)
-        // refresh the listings list
         fetchMyListings()
       } else {
-        alert(data.error)
+        setMessage({ text: data.error, type: 'error' })
       }
     } catch (err) {
       console.error(err)
-      alert('Something went wrong. Please try again.')
+      setMessage({ text: 'Something went wrong. Please try again.', type: 'error' })
     }
   }
 
   // ===== DELETE LISTING =====
-  // removes a listing from the database
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token')
@@ -124,7 +111,6 @@ function HostDashboard() {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       })
-      // refresh the listings list after deleting
       fetchMyListings()
     } catch (err) {
       console.error(err)
@@ -134,8 +120,21 @@ function HostDashboard() {
   return (
     <main className="host-dashboard">
 
-      <h1>Host Dashboard</h1>
+      {/* welcome message with the hosts username */}
+      <h1>Welcome, {username}!</h1>
       <p>Manage your experience listings here.</p>
+
+      {/* inline message -- shows success or error after form submit */}
+      {message.text && (
+        <p style={{
+          color: message.type === 'error' ? 'var(--coral-red)' : 'var(--forest-green)',
+          fontSize: '0.9rem',
+          marginBottom: '1rem',
+          fontWeight: '600'
+        }}>
+          {message.text}
+        </p>
+      )}
 
       {/* button to show or hide the create listing form */}
       <button
@@ -145,8 +144,7 @@ function HostDashboard() {
         {showForm ? 'Cancel' : '+ Create New Listing'}
       </button>
 
-      {/* create listing form -- only shows when host clicks Create New Listing
-          sends data to /api/listings on the backend when submitted */}
+      {/* create listing form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="listing-form">
 
@@ -170,7 +168,7 @@ function HostDashboard() {
             <textarea
               name="description"
               className="form-input"
-              placeholder="Describe your experience in a few sentences"
+              placeholder="Describe your experience"
               value={form.description}
               onChange={handleChange}
               maxLength={150}
@@ -226,9 +224,7 @@ function HostDashboard() {
             />
           </div>
 
-          {/* contact field with validation
-              only allows numbers, +, spaces, dashes, and parentheses
-              must be at least 7 characters */}
+          {/* contact with validation */}
           <div className="form-group">
             <label className="form-label">Contact Info</label>
             <input
@@ -246,7 +242,6 @@ function HostDashboard() {
             <small style={{ color: 'var(--text-muted)', fontSize: '0.8rem' }}>
               Include country code (e.g. +57 for Colombia)
             </small>
-            {/* shows error message if validation fails */}
             {contactError && (
               <p style={{ color: 'var(--coral-red)', fontSize: '0.85rem' }}>{contactError}</p>
             )}
@@ -257,8 +252,7 @@ function HostDashboard() {
         </form>
       )}
 
-      {/* my listings -- shows all listings this host has created
-          fetched from /api/mylistings on the backend */}
+      {/* my listings */}
       <div className="my-listings">
         <h2>My Listings</h2>
         {listings.length === 0 ? (
@@ -271,10 +265,6 @@ function HostDashboard() {
                 <p>Region: {listing.region}</p>
                 <p>Price: {listing.price}</p>
                 <p>Duration: {listing.duration}</p>
-                <p>{listing.description.length > 100 
-                  ? listing.description.substring(0, 100) + '...' 
-                  : listing.description}
-                </p>
                 <p>Contact: {listing.contact}</p>
                 <button
                   className="btn-primary"

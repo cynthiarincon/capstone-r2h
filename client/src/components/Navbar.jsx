@@ -4,9 +4,7 @@ import { useState, useEffect } from 'react'
 
 function Navbar() {
   const [menuOpen, setMenuOpen] = useState(false)
-
   // stores the logged in users info from localStorage
-  // localStorage is where I saved the token and username after login
   const [user, setUser] = useState(null)
 
   // when the navbar loads check if there is a token in localStorage
@@ -15,7 +13,6 @@ function Navbar() {
     const token = localStorage.getItem('token')
     const username = localStorage.getItem('username')
     const role = localStorage.getItem('role')
-
     if (token && username) {
       setUser({ token, username, role })
     }
@@ -35,7 +32,7 @@ function Navbar() {
       <div className="navbar-inner">
 
         {/* logo */}
-        <div className="navbar-logo">🌿 Explore Colombia</div>
+        <div className="navbar-logo">🌿 Descubre Colombia</div>
 
         {/* desktop links */}
         <div className="navbar-links">
@@ -43,15 +40,19 @@ function Navbar() {
           <a href="/explore" className="nav-link">Explore</a>
           <a href="/planner" className="nav-link">Trip Planner</a>
 
-          {/* if logged in show username and logout, if not show sign in and sign up */}
+          {/* show different links based on login state */}
           {user ? (
             <>
-              {/* show host dashboard link if the user is a host */}
-              {user.role === 'host' && (
-                <a href="/host-dashboard" className="nav-link">My Dashboard</a>
+              {/* hosts see host dashboard, users see account */}
+              {user.role === 'host' ? (
+                <a href="/host-dashboard" className="nav-link">Dashboard</a>
+              ) : (
+                <a href="/account" className="nav-link">Dashboard</a>
               )}
-              <a href="/account" className="nav-link">Hi, {user.username}!</a>
-              <button className="btn-nav-outline" onClick={handleLogout}>Log Out</button>
+              {/* logout button with proper contrast */}
+              <button className="btn-nav-outline" onClick={handleLogout}>
+              Log Out
+            </button>
             </>
           ) : (
             <>
@@ -82,16 +83,23 @@ function Navbar() {
 
           {user ? (
             <>
-              {user.role === 'host' && (
-                <a href="/host-dashboard" className="mobile-link" onClick={() => setMenuOpen(false)}>My Dashboard</a>
+              {user.role === 'host' ? (
+                <a href="/host-dashboard" className="mobile-link" onClick={() => setMenuOpen(false)}>Dashboard</a>
+              ) : (
+                <a href="/account" className="mobile-link" onClick={() => setMenuOpen(false)}>Dashboard</a>
               )}
-              <a href="/account" className="mobile-link" onClick={() => setMenuOpen(false)}>Hi, {user.username}!</a>
-              <button className="mobile-link" onClick={handleLogout}>Log Out</button>
+              <button
+                className="mobile-link"
+                onClick={handleLogout}
+                style={{ background: 'none', border: 'none', textAlign: 'left', color: 'rgba(255,255,255,0.9)', cursor: 'pointer' }}
+              >
+                Log Out
+              </button>
             </>
           ) : (
             <>
               <a href="/login" className="mobile-link" onClick={() => setMenuOpen(false)}>Sign In</a>
-              <a href="/login?mode=register" className="mobile-link btn-nav-primary" onClick={() => setMenuOpen(false)}>Sign Up</a>
+              <a href="/login?mode=register" className="mobile-link" onClick={() => setMenuOpen(false)}>Sign Up</a>
             </>
           )}
         </div>

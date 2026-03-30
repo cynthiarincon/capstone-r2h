@@ -95,20 +95,23 @@ button {
   color: var(--golden-yellow);
 }
 
+/* sign in button -- white text with white border on dark navbar */
 .btn-nav-outline {
-  color: var(--golden-yellow);
-  border: 1px solid var(--golden-yellow);
+  color: var(--warm-white);
+  border: 1.5px solid rgba(255, 255, 255, 0.6);
   border-radius: 50px;
   padding: 0.5rem 1.25rem;
   font-size: 0.9rem;
   font-weight: 600;
+  background: transparent;
 }
 
 .btn-nav-outline:hover {
-  background-color: var(--golden-yellow);
-  color: var(--deep-green);
+  background-color: rgba(255, 255, 255, 0.1);
+  border-color: var(--warm-white);
 }
 
+/* sign up and primary navbar button -- golden yellow */
 .btn-nav-primary {
   background-color: var(--golden-yellow);
   color: var(--deep-green);
@@ -148,9 +151,11 @@ button {
 .burger.is-open span:nth-child(1) {
   transform: translateY(7px) rotate(45deg);
 }
+
 .burger.is-open span:nth-child(2) {
   opacity: 0;
 }
+
 .burger.is-open span:nth-child(3) {
   transform: translateY(-7px) rotate(-45deg);
 }
@@ -176,17 +181,6 @@ button {
 .mobile-link:hover {
   background-color: rgba(244, 196, 48, 0.1);
   color: var(--golden-yellow);
-}
-
-@media (min-width: 768px) {
-  .burger { display: none; }
-  .navbar-links { display: flex; }
-  .mobile-menu { display: none !important; }
-}
-
-@media (min-width: 1024px) {
-  .navbar-inner { padding: 0 3rem; }
-  .navbar-logo { font-size: 1.5rem; }
 }
 
 /* ============================================================
@@ -308,11 +302,6 @@ button {
   flex-wrap: wrap;
 }
 
-@media (min-width: 768px) {
-  .leaf-left { font-size: 12rem; }
-  .leaf-right { font-size: 10rem; }
-}
-
 /* ============================================================
    ====================== STATS STRIP =========================
    ============================================================ */
@@ -419,11 +408,6 @@ button {
   line-height: 1.6;
 }
 
-@media (min-width: 768px) {
-  .features-grid { grid-template-columns: repeat(3, 1fr); }
-  .features { padding: 7rem 2rem; }
-}
-
 /* ============================================================
    =================== FLOWER DIVIDER ========================
    ============================================================ */
@@ -503,14 +487,6 @@ button {
   font-size: 0.9rem;
 }
 
-@media (min-width: 600px) {
-  .destinations-grid { grid-template-columns: repeat(2, 1fr); }
-}
-
-@media (min-width: 1024px) {
-  .destinations-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
 /* ============================================================
    ====================== WHY SIGN UP =========================
    ============================================================ */
@@ -551,10 +527,6 @@ button {
   color: rgba(255,255,255,0.7);
   font-size: 0.95rem;
   line-height: 1.6;
-}
-
-@media (min-width: 768px) {
-  .why-grid { grid-template-columns: repeat(3, 1fr); }
 }
 
 /* ============================================================
@@ -666,13 +638,6 @@ button {
   padding: 1.5rem;
   color: rgba(255,255,255,0.3);
   font-size: 0.8rem;
-}
-
-@media (min-width: 768px) {
-  .footer-inner {
-    grid-template-columns: 2fr 1fr 1fr;
-    align-items: start;
-  }
 }
 
 /* ============================================================
@@ -1012,10 +977,6 @@ button {
   border-top: 1px solid var(--cream);
 }
 
-@media (min-width: 768px) {
-  .listings-grid { grid-template-columns: repeat(3, 1fr); }
-}
-
 /* ============================================================
    ========================= ACCOUNT ==========================
    ============================================================ */
@@ -1056,10 +1017,6 @@ button {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
-}
-
-@media (min-width: 768px) {
-  .trips-grid { grid-template-columns: repeat(2, 1fr); }
 }
 
 /* ============================================================
@@ -1109,4 +1066,64 @@ button {
   margin-top: 2rem;
   padding-top: 2rem;
   border-top: 1px solid var(--cream);
+}
+
+/* ============================================================
+   =================== MEDIA QUERIES =========================
+   ============================================================ */
+
+/* navbar */
+@media (min-width: 768px) {
+  .burger { display: none; }
+  .navbar-links { display: flex; }
+  .mobile-menu { display: none !important; }
+}
+
+@media (min-width: 1024px) {
+  .navbar-inner { padding: 0 3rem; }
+  .navbar-logo { font-size: 1.5rem; }
+}
+
+/* hero */
+@media (min-width: 768px) {
+  .leaf-left { font-size: 12rem; }
+  .leaf-right { font-size: 10rem; }
+}
+
+/* features */
+@media (min-width: 768px) {
+  .features-grid { grid-template-columns: repeat(3, 1fr); }
+  .features { padding: 7rem 2rem; }
+}
+
+/* destinations */
+@media (min-width: 600px) {
+  .destinations-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .destinations-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* why signup */
+@media (min-width: 768px) {
+  .why-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* footer */
+@media (min-width: 768px) {
+  .footer-inner {
+    grid-template-columns: 2fr 1fr 1fr;
+    align-items: start;
+  }
+}
+
+/* planner */
+@media (min-width: 768px) {
+  .listings-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* account */
+@media (min-width: 768px) {
+  .trips-grid { grid-template-columns: repeat(2, 1fr); }
 }
