@@ -867,6 +867,18 @@ button {
   margin: 0.5rem 0;
 }
 
+.learn-more-btn {
+  background: none;
+  border: none;
+  color: var(--forest-green);
+  font-size: 0.8rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  margin-left: 0.5rem;
+  text-decoration: underline;
+}
+
 /* ============================================================
    ========================= PLANNER ==========================
    ============================================================ */
