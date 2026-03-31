@@ -295,12 +295,12 @@ function Planner() {
           <div className="trips-grid">
             {savedTrips.map(trip => (
               <div key={trip.id} className="trip-card">
-                <h3>{trip.region}</h3>
-                <p>{trip.duration} · {trip.style} · {trip.travel_group}</p>
-                <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
-                  Saved on {new Date(trip.created_at).toLocaleDateString()}
-                </p>
-              </div>
+              <h3>{trip.trip_name || trip.region}</h3>
+              <p>{trip.region} · {trip.duration} · {trip.style}</p>
+              <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+                Saved on {new Date(trip.created_at).toLocaleDateString()}
+              </p>
+            </div>
             ))}
           </div>
         )}
