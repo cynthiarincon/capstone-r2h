@@ -32,7 +32,7 @@ function Navbar() {
       <div className="navbar-inner">
 
         {/* logo */}
-        <div className="navbar-logo">🌿 Descubre Colombia</div>
+        <div className="navbar-logo">🌿 Explore Colombia</div>
 
         {/* desktop links */}
         <div className="navbar-links">
