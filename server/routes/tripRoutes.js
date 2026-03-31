@@ -64,17 +64,14 @@ router.post('/generateTrip', async (req, res) => {
 // POST /api/saveTrip -- saves a trip to the database
 // auth middleware checks the token before allowing this
 router.post('/saveTrip', auth, async (req, res) => {
-  const { region, duration, style, group, itinerary } = req.body
-
-  // req.user comes from the auth middleware -- it has the logged in users id
+  const { region, duration, style, group, itinerary, tripName } = req.body
   const userId = req.user.id
-
   try {
     await pool.query(
-      'INSERT INTO trips (user_id, region, duration, style, travel_group, itinerary) VALUES (?, ?, ?, ?, ?, ?)',
-      [userId, region, duration, style, group, itinerary]
+      'INSERT INTO trips (user_id, region, duration, style, travel_group, itinerary, trip_name) VALUES (?, ?, ?, ?, ?, ?, ?)',
+      [userId, region, duration, style, group, itinerary, tripName]
     )
-    res.status(201).json({ message: 'Trip saved successfully!' })
+    res.status(201).json({ message: 'Trip saved!' })
   } catch (err) {
     console.error(err)
     res.status(500).json({ error: 'Server error' })

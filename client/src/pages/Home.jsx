@@ -1,11 +1,18 @@
-// destinations -- hardcoded for now, will eventually pull from API-Colombia
+import medellin from '../assets/medellin.png'
+import cartagena from '../assets/Cartagena.png'
+import sanandres from '../assets/sanandres.png'
+import amazonas from '../assets/amazonas.png'
+import pereira from '../assets/pereira.png'
+import tatacoa from '../assets/tatacoa.png'
+
+// destinations
 const destinations = [
-  { name: 'Medellín', region: 'Antioquia', tag: 'City of Eternal Spring', color: '#2d6a4f' },
-  { name: 'Cartagena', region: 'Bolívar', tag: 'Historic Walled City', color: '#e63946' },
-  { name: 'San Andrés', region: 'Archipiélago', tag: 'Caribbean Paradise', color: '#1a4a6b' },
-  { name: 'Pereira', region: 'Risaralda', tag: 'Coffee Region', color: '#6b3a1f' },
-  { name: 'Amazonas', region: 'Amazonia', tag: 'Jungle Adventure', color: '#1a5c38' },
-  { name: 'La Tatacoa', region: 'Huila', tag: 'Desert & Stars', color: '#c17f3a' },
+  { name: 'Cartagena', region: 'Caribe', tag: 'Coast', image: cartagena },
+  { name: 'Medellín', region: 'Andina', tag: 'City', image: medellin },
+  { name: 'San Andrés', region: 'Insular', tag: 'Island', image: sanandres },
+  { name: 'Amazonas', region: 'Amazonía', tag: 'Jungle', image: amazonas },
+  { name: 'Pereira', region: 'Andina', tag: 'Coffee', image: pereira },
+  { name: 'Tatacoa', region: 'Andina', tag: 'Desert', image: tatacoa },
 ]
 
 // features -- describes what the app does, shown in the features section
@@ -103,17 +110,24 @@ function Home() {
           <h2 className="section-title">Where will you go first?</h2>
         </div>
         <div className="destinations-grid">
-          {destinations.map((d, i) => (
-            <div className="destination-card" key={i}>
-              <div className="destination-img" style={{ backgroundColor: d.color }}>
-                <span className="destination-tag">{d.tag}</span>
-              </div>
-              <div className="destination-info">
-                <h3 className="destination-name">{d.name}</h3>
-                <p className="destination-region">📍 {d.region}</p>
-              </div>
-            </div>
-          ))}
+          {destinations.map(dest => (
+  <div key={dest.name} className="destination-card">
+    <div
+      className="destination-img"
+      style={{
+        backgroundImage: `url(${dest.image})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center'
+      }}
+    >
+      <span className="destination-tag">{dest.tag}</span>
+    </div>
+    <div className="destination-info">
+      <p className="destination-name">{dest.name}</p>
+      <p className="destination-region">{dest.region}</p>
+    </div>
+  </div>
+))}
         </div>
       </section>
 

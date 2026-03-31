@@ -977,6 +977,25 @@ button {
   border-top: 1px solid var(--cream);
 }
 
+.trip-card {
+  background-color: var(--cream);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  border-left: 4px solid var(--forest-green);
+}
+
+.trip-card h3 {
+  font-family: var(--font-display);
+  color: var(--midnight-green);
+  margin-bottom: 0.25rem;
+}
+
+.trip-card p {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin: 0.2rem 0;
+}
+
 /* ============================================================
    ========================= ACCOUNT ==========================
    ============================================================ */
@@ -1017,6 +1036,12 @@ button {
   display: grid;
   grid-template-columns: 1fr;
   gap: 1rem;
+}
+
+.account-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(0,0,0,0.08);
 }
 
 /* ============================================================
