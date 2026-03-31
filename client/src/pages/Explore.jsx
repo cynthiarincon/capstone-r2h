@@ -1,7 +1,55 @@
+// hooks I need for this page
 import { useState, useEffect, useRef } from 'react'
+
+// d3 helps me draw the map as an SVG
 import * as d3 from 'd3'
 
 const COLOMBIA_GEO = 'https://gist.githubusercontent.com/john-guerra/43c7656821069d00dcbc/raw/3aadedf47badbdac823b00dbe259f6bc6d9e1899/colombia.geo.json'
+
+const regionInfo = [
+  {
+    name: 'Caribe',
+    english: 'Caribbean',
+    emoji: '🏖️',
+    description: 'Coastal region known for beaches, festivals, and Afro-Colombian culture.',
+    departments: ['Atlántico', 'Bolívar', 'Cesar', 'Córdoba', 'La Guajira', 'Magdalena', 'Sucre', 'San Andrés y Providencia']
+  },
+  {
+    name: 'Andina',
+    english: 'Andean',
+    emoji: '⛰️',
+    description: 'The most populated region, home to Bogotá, Medellín, and the coffee growing areas.',
+    departments: ['Antioquia', 'Boyacá', 'Caldas', 'Cundinamarca', 'Huila', 'Norte de Santander', 'Quindío', 'Risaralda', 'Santander', 'Tolima', 'Bogotá D.C.']
+  },
+  {
+    name: 'Pacífico',
+    english: 'Pacific',
+    emoji: '🌊',
+    description: 'Lush rainforest region with incredible biodiversity and rich Afro-Colombian traditions.',
+    departments: ['Chocó', 'Cauca', 'Nariño', 'Valle del Cauca']
+  },
+  {
+    name: 'Orinoquía',
+    english: 'Orinoquia',
+    emoji: '🌾',
+    description: 'Vast plains region known for cowboys, wildlife, and the Orinoco River.',
+    departments: ['Arauca', 'Casanare', 'Meta', 'Vichada']
+  },
+  {
+    name: 'Amazonía',
+    english: 'Amazon',
+    emoji: '🌿',
+    description: 'Dense jungle region home to indigenous communities and extraordinary wildlife.',
+    departments: ['Amazonas', 'Caquetá', 'Guainía', 'Guaviare', 'Putumayo', 'Vaupés']
+  },
+  {
+    name: 'Insular',
+    english: 'Insular',
+    emoji: '🏝️',
+    description: 'Island territories in the Caribbean and Pacific with crystal clear waters.',
+    departments: ['San Andrés', 'Providencia', 'Santa Catalina']
+  }
+]
 
 function Explore() {
   const [departments, setDepartments] = useState([])
@@ -141,10 +189,10 @@ function Explore() {
 
       <h1>Explore Colombia</h1>
       <p>Hover over a department to see its name. Click to learn more about it.</p>
-      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-        🟢 Click any green department to explore it. Grey departments have limited data from API-Colombia -- more coming soon!
+      <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', textAlign: 'center' }}>
+        🟢 Click any green department to explore it. Grey departments have limited data.
       </p>
-      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
+      <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)', textAlign: 'center' }}>
         ℹ️ Some content is provided in Spanish by API-Colombia. English translation coming soon.
       </p>
 
@@ -161,13 +209,15 @@ function Explore() {
             setExpanded({})
           }}>✕ Close</button>
 
-          <h2>{selectedDept.name}</h2>
+          <div className="dept-panel-header">
+            <h2>{selectedDept.name}</h2>
+            <p>Region: {deptRegion}</p>
+          </div>
 
           {selectedDept.noData ? (
             <p>No data available for this department yet from API-Colombia.</p>
           ) : (
             <>
-              <p><strong>Region:</strong> {deptRegion}</p>
               <p><strong>Capital:</strong> {selectedDept.cityCapital?.name || '--'}</p>
               <p><strong>Population:</strong> {selectedDept.population?.toLocaleString() || '--'}</p>
               <p><strong>Surface:</strong> {selectedDept.surface?.toLocaleString()} km²</p>
@@ -295,10 +345,29 @@ function Explore() {
             </>
           )}
         </div>
+
       ) : (
-        <div className="dept-panel">
-          <h2>Click a department on the map</h2>
-          <p>Select any department to see its region, capital, population, tourist attractions, typical dishes, festivals, cultural heritage, airports, and local host experiences.</p>
+        <div className="explore-default">
+          <h2>Colombia's 6 Regions</h2>
+          <p className="detail-desc" style={{ marginBottom: '1.5rem', textAlign: 'center' }}>
+            Click any department on the map to explore it. Here's an overview of Colombia's regions:
+          </p>
+          <div className="regions-grid">
+            {regionInfo.map(r => (
+              <div key={r.name} className="region-card">
+                <span className="region-emoji">{r.emoji}</span>
+                <div>
+                  <h3 className="region-name">
+                    {r.english} <span className="region-spanish">/ {r.name}</span>
+                  </h3>
+                  <p className="region-desc">{r.description}</p>
+                  <p className="region-depts">
+                    <strong>Departments:</strong> {r.departments.join(', ')}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
 

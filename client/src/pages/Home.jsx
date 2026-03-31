@@ -168,8 +168,8 @@ function Home() {
         <h2 className="cta-title">Ready to discover Colombia?</h2>
         <p className="cta-subtitle">Create a free account to save trips and get personalized itineraries.</p>
         <div className="cta-buttons">
-          <button className="btn-primary">Get Started</button>
-          <button className="btn-outline">Sign In</button>
+          <a href="/login?mode=register" className="btn-primary">Get Started</a>
+          <a href="/login" className="btn-outline">Sign In</a>
         </div>
       </section>
 

@@ -95,7 +95,6 @@ button {
   color: var(--golden-yellow);
 }
 
-/* sign in button -- white text with white border on dark navbar */
 .btn-nav-outline {
   color: var(--warm-white);
   border: 1.5px solid rgba(255, 255, 255, 0.6);
@@ -111,7 +110,6 @@ button {
   border-color: var(--warm-white);
 }
 
-/* sign up and primary navbar button -- golden yellow */
 .btn-nav-primary {
   background-color: var(--golden-yellow);
   color: var(--deep-green);
@@ -757,21 +755,19 @@ button {
   color: var(--midnight-green);
   font-size: 2.5rem;
   margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.explore-page > p {
+  color: var(--text-muted);
+  margin-bottom: 0.5rem;
+  text-align: center;
 }
 
 .map-container {
   width: 100%;
   max-width: 800px;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-}
-
-.map-container {
-  width: 100%;
-  max-width: 800px;
-  margin: 0 auto;
+  margin: 1.5rem auto 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -782,20 +778,15 @@ button {
   color: var(--forest-green);
   font-weight: 600;
   margin-top: 0.5rem;
+  text-align: center;
 }
 
 .dept-panel {
   background-color: var(--cream);
   border-radius: 16px;
   padding: 1.5rem;
-  margin-bottom: 2rem;
+  margin-top: 2rem;
   border-left: 4px solid var(--forest-green);
-}
-
-.dept-panel h2 {
-  font-family: var(--font-display);
-  color: var(--midnight-green);
-  margin-bottom: 1rem;
 }
 
 .dept-panel h3 {
@@ -809,6 +800,26 @@ button {
   color: var(--charcoal);
   margin-bottom: 0.5rem;
   line-height: 1.6;
+}
+
+.dept-panel-header {
+  background: linear-gradient(135deg, var(--midnight-green), var(--forest-green));
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.dept-panel-header h2 {
+  color: var(--warm-white) !important;
+  font-family: var(--font-display);
+  font-size: 1.8rem;
+  margin-bottom: 0.25rem;
+}
+
+.dept-panel-header p {
+  color: rgba(255,255,255,0.75) !important;
+  font-size: 0.9rem !important;
+  margin: 0 !important;
 }
 
 .close-btn {
@@ -834,7 +845,8 @@ button {
 }
 
 .detail-img {
-  width: 200px;
+  width: 100%;
+  max-width: 200px;
   border-radius: 8px;
   display: block;
   margin: 0.5rem 0;
@@ -850,6 +862,71 @@ button {
   padding: 0;
   margin-left: 0.5rem;
   text-decoration: underline;
+}
+
+/* ============================================================
+   =================== EXPLORE REGIONS =======================
+   ============================================================ */
+.explore-default {
+  margin-top: 2rem;
+  width: 100%;
+}
+
+.explore-default h2 {
+  font-family: var(--font-display);
+  color: var(--midnight-green);
+  font-size: 1.8rem;
+  margin-bottom: 0.5rem;
+  text-align: center;
+}
+
+.regions-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.region-card {
+  background-color: var(--cream);
+  border-radius: 16px;
+  padding: 1.25rem;
+  border-left: 4px solid var(--forest-green);
+  display: flex;
+  gap: 1rem;
+  align-items: flex-start;
+}
+
+.region-emoji {
+  font-size: 2rem;
+  flex-shrink: 0;
+}
+
+.region-name {
+  font-family: var(--font-display);
+  color: var(--midnight-green);
+  font-size: 1.1rem;
+  margin-bottom: 0.35rem;
+}
+
+.region-spanish {
+  color: var(--text-muted);
+  font-size: 0.95rem;
+  font-weight: 400;
+  font-style: italic;
+}
+
+.region-desc {
+  color: var(--text-muted);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.5;
+}
+
+.region-depts {
+  color: var(--charcoal);
+  font-size: 0.8rem;
+  line-height: 1.6;
 }
 
 /* ============================================================
@@ -1159,4 +1236,13 @@ button {
 /* account */
 @media (min-width: 768px) {
   .trips-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+/* explore regions */
+@media (min-width: 768px) {
+  .regions-grid { grid-template-columns: repeat(2, 1fr); }
+}
+
+@media (min-width: 1024px) {
+  .regions-grid { grid-template-columns: repeat(3, 1fr); }
 }

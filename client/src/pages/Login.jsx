@@ -87,7 +87,7 @@ function Login() {
         </div>
 
         <h1 className="login-title">{mode === 'login' ? 'Welcome back' : 'Create an account'}</h1>
-        <p className="login-subtitle">{mode === 'login' ? 'Sign in to your account' : 'Join Descubre Colombia'}</p>
+        <p className="login-subtitle">{mode === 'login' ? 'Sign in to your account' : 'Join Explore Colombia'}</p>
 
         {message.text && (
           <p style={{
@@ -118,6 +118,13 @@ function Login() {
             <label className="form-label">Password</label>
             <input type="password" name="password" className="form-input" placeholder="Enter your password" value={form.password} onChange={handleChange} required />
           </div>
+
+          {/* forgot password link -- aesthetic only for now */}
+          {mode === 'login' && (
+            <p style={{ fontSize: '0.85rem', color: 'var(--forest-green)', textAlign: 'right', cursor: 'pointer', marginTop: '-0.5rem' }}>
+              Forgot password?
+            </p>
+          )}
 
           {mode === 'register' && (
             <div className="form-group">
