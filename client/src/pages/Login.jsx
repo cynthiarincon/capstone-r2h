@@ -1,6 +1,3 @@
-// useSearchParams reads the URL to check if ?mode=register was passed from the navbar
-// useState manages all my form state and toggles
-// useEffect runs code when the page first loads
 import { useState, useEffect } from 'react'
 import { useSearchParams } from 'react-router-dom'
 
@@ -16,10 +13,8 @@ function Login() {
     department: '',
     bio: ''
   })
-  // stores any error or success messages to show in the form
   const [message, setMessage] = useState({ text: '', type: '' })
 
-  // open register tab if coming from navbar sign up button
   useEffect(() => {
     if (searchParams.get('mode') === 'register') {
       setMode('register')
@@ -30,14 +25,13 @@ function Login() {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  // ===== HANDLE SUBMIT =====
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMessage({ text: '', type: '' })
 
     try {
       if (mode === 'register') {
-        const response = await fetch('${import.meta.env.VITE_API_URL}/api/register', {
+        const response = await fetch('https://capstone-r2h.onrender.com/api/register', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -51,16 +45,14 @@ function Login() {
         })
         const data = await response.json()
         if (response.ok) {
-          // show success message and switch to login tab
           setMessage({ text: 'Account created! Please sign in.', type: 'success' })
           setMode('login')
         } else {
-          // show error message in the form
           setMessage({ text: data.error, type: 'error' })
         }
 
       } else {
-        const response = await fetch('${import.meta.env.VITE_API_URL}/api/login', {
+        const response = await fetch('https://capstone-r2h.onrender.com/api/login', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
@@ -75,7 +67,6 @@ function Login() {
           localStorage.setItem('role', data.role)
           window.location.href = '/'
         } else {
-          // show error message in the form
           setMessage({ text: data.error, type: 'error' })
         }
       }
@@ -90,7 +81,6 @@ function Login() {
     <main className="login-page">
       <div className="login-card">
 
-        {/* sign in / sign up tabs */}
         <div className="role-toggle">
           <button className={`role-btn ${mode === 'login' ? 'active' : ''}`} onClick={() => setMode('login')}>Sign In</button>
           <button className={`role-btn ${mode === 'register' ? 'active' : ''}`} onClick={() => setMode('register')}>Sign Up</button>
@@ -99,7 +89,6 @@ function Login() {
         <h1 className="login-title">{mode === 'login' ? 'Welcome back' : 'Create an account'}</h1>
         <p className="login-subtitle">{mode === 'login' ? 'Sign in to your account' : 'Join Descubre Colombia'}</p>
 
-        {/* shows success or error message inside the form */}
         {message.text && (
           <p style={{
             color: message.type === 'error' ? 'var(--coral-red)' : 'var(--forest-green)',
@@ -113,7 +102,6 @@ function Login() {
 
         <form onSubmit={handleSubmit} className="login-form">
 
-          {/* user or host toggle -- only shows on register */}
           {mode === 'register' && (
             <div className="role-toggle">
               <button type="button" className={`role-btn ${role === 'user' ? 'active' : ''}`} onClick={() => setRole('user')}>User</button>
@@ -131,7 +119,6 @@ function Login() {
             <input type="password" name="password" className="form-input" placeholder="Enter your password" value={form.password} onChange={handleChange} required />
           </div>
 
-          {/* confirm password -- only shows on register */}
           {mode === 'register' && (
             <div className="form-group">
               <label className="form-label">Confirm Password</label>
@@ -139,7 +126,6 @@ function Login() {
             </div>
           )}
 
-          {/* host only fields */}
           {mode === 'register' && role === 'host' && (
             <>
               <div className="form-group">

@@ -1,10 +1,7 @@
-// useState manages the form data and the list of listings
-// useEffect fetches the hosts listings when the page loads
 import { useState, useEffect } from 'react'
 
 function HostDashboard() {
 
-  // ===== STATE =====
   const [showForm, setShowForm] = useState(false)
   const [form, setForm] = useState({
     title: '',
@@ -16,12 +13,9 @@ function HostDashboard() {
   })
   const [listings, setListings] = useState([])
   const [contactError, setContactError] = useState('')
-  // stores success or error messages to show in the form
   const [message, setMessage] = useState({ text: '', type: '' })
-  // stores the logged in hosts username
   const [username, setUsername] = useState('')
 
-  // ===== CHECK IF LOGGED IN =====
   useEffect(() => {
     const token = localStorage.getItem('token')
     const storedUsername = localStorage.getItem('username')
@@ -33,11 +27,10 @@ function HostDashboard() {
     fetchMyListings()
   }, [])
 
-  // ===== FETCH MY LISTINGS =====
   const fetchMyListings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('${import.meta.env.VITE_API_URL}/api/mylistings', {
+      const response = await fetch('https://capstone-r2h.onrender.com/api/mylistings', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await response.json()
@@ -47,12 +40,10 @@ function HostDashboard() {
     }
   }
 
-  // ===== HANDLE CHANGE =====
   const handleChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value })
   }
 
-  // ===== VALIDATE CONTACT =====
   const validateContact = (value) => {
     const validFormat = /^[0-9+\s\-()]+$/.test(value)
     const validLength = value.length >= 7
@@ -65,20 +56,16 @@ function HostDashboard() {
     }
   }
 
-  // ===== HANDLE SUBMIT =====
   const handleSubmit = async (e) => {
     e.preventDefault()
     setMessage({ text: '', type: '' })
-
-    // show inline error instead of alert
     if (contactError) {
       setMessage({ text: 'Please fix the contact number before submitting.', type: 'error' })
       return
     }
-
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('${import.meta.env.VITE_API_URL}/api/listings', {
+      const response = await fetch('https://capstone-r2h.onrender.com/api/listings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -88,7 +75,6 @@ function HostDashboard() {
       })
       const data = await response.json()
       if (response.ok) {
-        // show success message in the form instead of alert
         setMessage({ text: 'Listing created successfully!', type: 'success' })
         setForm({ title: '', description: '', region: '', price: '', duration: '', contact: '' })
         setContactError('')
@@ -103,11 +89,10 @@ function HostDashboard() {
     }
   }
 
-  // ===== DELETE LISTING =====
   const handleDelete = async (id) => {
     try {
       const token = localStorage.getItem('token')
-      await fetch(`http://localhost:3000/api/listings/${id}`, {
+      await fetch(`https://capstone-r2h.onrender.com/api/listings/${id}`, {
         method: 'DELETE',
         headers: { Authorization: `Bearer ${token}` }
       })
@@ -120,11 +105,9 @@ function HostDashboard() {
   return (
     <main className="host-dashboard">
 
-      {/* welcome message with the hosts username */}
       <h1>Welcome, {username}!</h1>
       <p>Manage your experience listings here.</p>
 
-      {/* inline message -- shows success or error after form submit */}
       {message.text && (
         <p style={{
           color: message.type === 'error' ? 'var(--coral-red)' : 'var(--forest-green)',
@@ -136,15 +119,10 @@ function HostDashboard() {
         </p>
       )}
 
-      {/* button to show or hide the create listing form */}
-      <button
-        className="btn-primary"
-        onClick={() => setShowForm(!showForm)}
-      >
+      <button className="btn-primary" onClick={() => setShowForm(!showForm)}>
         {showForm ? 'Cancel' : '+ Create New Listing'}
       </button>
 
-      {/* create listing form */}
       {showForm && (
         <form onSubmit={handleSubmit} className="listing-form">
 
@@ -152,15 +130,7 @@ function HostDashboard() {
 
           <div className="form-group">
             <label className="form-label">Experience Title</label>
-            <input
-              type="text"
-              name="title"
-              className="form-input"
-              placeholder="e.g. City Walking Tour"
-              value={form.title}
-              onChange={handleChange}
-              required
-            />
+            <input type="text" name="title" className="form-input" placeholder="e.g. City Walking Tour" value={form.title} onChange={handleChange} required />
           </div>
 
           <div className="form-group">
@@ -181,13 +151,7 @@ function HostDashboard() {
 
           <div className="form-group">
             <label className="form-label">Region</label>
-            <select
-              name="region"
-              className="form-input"
-              value={form.region}
-              onChange={handleChange}
-              required
-            >
+            <select name="region" className="form-input" value={form.region} onChange={handleChange} required>
               <option value="">Select a region</option>
               <option value="Caribe">Caribe</option>
               <option value="Andina">Andina</option>
@@ -200,31 +164,14 @@ function HostDashboard() {
 
           <div className="form-group">
             <label className="form-label">Price</label>
-            <input
-              type="text"
-              name="price"
-              className="form-input"
-              placeholder="e.g. $20"
-              value={form.price}
-              onChange={handleChange}
-              required
-            />
+            <input type="text" name="price" className="form-input" placeholder="e.g. $20" value={form.price} onChange={handleChange} required />
           </div>
 
           <div className="form-group">
             <label className="form-label">Duration</label>
-            <input
-              type="text"
-              name="duration"
-              className="form-input"
-              placeholder="e.g. 2 hours"
-              value={form.duration}
-              onChange={handleChange}
-              required
-            />
+            <input type="text" name="duration" className="form-input" placeholder="e.g. 2 hours" value={form.duration} onChange={handleChange} required />
           </div>
 
-          {/* contact with validation */}
           <div className="form-group">
             <label className="form-label">Contact Info</label>
             <input
@@ -252,7 +199,6 @@ function HostDashboard() {
         </form>
       )}
 
-      {/* my listings */}
       <div className="my-listings">
         <h2>My Listings</h2>
         {listings.length === 0 ? (
@@ -266,10 +212,7 @@ function HostDashboard() {
                 <p>Price: {listing.price}</p>
                 <p>Duration: {listing.duration}</p>
                 <p>Contact: {listing.contact}</p>
-                <button
-                  className="btn-primary"
-                  onClick={() => handleDelete(listing.id)}
-                >
+                <button className="btn-primary" onClick={() => handleDelete(listing.id)}>
                   Delete
                 </button>
               </div>
