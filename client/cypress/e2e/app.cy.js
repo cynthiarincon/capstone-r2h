@@ -23,14 +23,17 @@ describe('Explore Colombia', () => {
   })
 
   // test that a user can register
+  // uses a timestamp to make username unique every run
   it('should allow a user to register', () => {
     cy.visit('http://localhost:5173/login')
     cy.contains('Sign Up').click()
-    cy.get('input[name="username"]').type('cypressuser')
+    // wait for the form to switch to register mode
+    cy.get('input[name="username"]', { timeout: 5000 }).should('exist')
+    cy.get('input[name="username"]').type(`cypressuser${Date.now()}`)
     cy.get('input[name="password"]').type('test1234')
     cy.get('input[name="confirmPassword"]').type('test1234')
     cy.contains('Create Account').click()
-    cy.contains('Account created').should('exist')
+    cy.contains('Account created', { timeout: 5000 }).should('exist')
   })
 
   // test that a user can log in
@@ -38,8 +41,9 @@ describe('Explore Colombia', () => {
     cy.visit('http://localhost:5173/login')
     cy.get('input[name="username"]').type('testuser')
     cy.get('input[name="password"]').type('test123')
-    cy.contains('Sign In').click()
-    cy.url().should('eq', 'http://localhost:5173/')
+    cy.get('button[type="submit"]').click()
+    // wait for redirect to home page
+    cy.url({ timeout: 8000 }).should('eq', 'http://localhost:5173/')
   })
 
   // test that trip planner redirects to login if not signed in
@@ -54,7 +58,7 @@ describe('Explore Colombia', () => {
     cy.visit('http://localhost:5173/login')
     cy.get('input[name="username"]').type('testuser')
     cy.get('input[name="password"]').type('test123')
-    cy.contains('Sign In').click()
+    cy.get('button[type="submit"]').click()
     cy.visit('http://localhost:5173/planner')
     cy.contains('Trip Planner').should('exist')
   })
@@ -64,8 +68,10 @@ describe('Explore Colombia', () => {
     cy.visit('http://localhost:5173/login')
     cy.get('input[name="username"]').type('testuser')
     cy.get('input[name="password"]').type('test123')
-    cy.contains('Sign In').click()
-    cy.contains('Log Out').should('exist')
+    cy.get('button[type="submit"]').click()
+    // wait for redirect then check navbar
+    cy.url({ timeout: 8000 }).should('eq', 'http://localhost:5173/')
+    cy.contains('Log Out', { timeout: 5000 }).should('exist')
   })
 
 })

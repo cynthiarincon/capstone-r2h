@@ -21,6 +21,8 @@ function Planner() {
   const [savedMsg, setSavedMsg] = useState('')
   const [savedTrips, setSavedTrips] = useState([])
   const [tripName, setTripName] = useState('')
+  // tracks which saved trip is expanded to show full itinerary
+  const [expandedTrip, setExpandedTrip] = useState(null)
 
   useEffect(() => {
     const token = localStorage.getItem('token')
@@ -234,6 +236,7 @@ function Planner() {
         </div>
       )}
 
+      {/* saved trips -- shows all previously saved itineraries */}
       <div className="saved-trips">
         <h2>Your Saved Trips</h2>
         {savedTrips.length === 0 ? (
@@ -247,6 +250,18 @@ function Planner() {
                 <p style={{ fontSize: '0.8rem', color: 'var(--text-muted)' }}>
                   Saved on {new Date(trip.created_at).toLocaleDateString()}
                 </p>
+                {/* toggle to expand and read the full itinerary */}
+                <button
+                  className="learn-more-btn"
+                  onClick={() => setExpandedTrip(expandedTrip === trip.id ? null : trip.id)}
+                >
+                  {expandedTrip === trip.id ? 'Hide Itinerary' : 'View Itinerary'}
+                </button>
+                {expandedTrip === trip.id && (
+                  <div style={{ marginTop: '1rem', borderTop: '1px solid rgba(0,0,0,0.08)', paddingTop: '1rem' }}>
+                    <ReactMarkdown>{trip.itinerary}</ReactMarkdown>
+                  </div>
+                )}
               </div>
             ))}
           </div>

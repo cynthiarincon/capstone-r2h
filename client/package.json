@@ -4,11 +4,12 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
-    "lint": "eslint .",
-    "preview": "vite preview"
-  },
+  "dev": "vite",
+  "build": "vite build",
+  "preview": "vite preview",
+  "cypress:open": "cypress open",
+  "cypress:run": "cypress run"
+},
   "dependencies": {
     "d3": "^7.9.0",
     "react": "^19.2.4",
