@@ -274,6 +274,8 @@ function Planner() {
           )}
         </>
       )}
+      </div>
+      )}
 
       {/* placeholder -- shows before the user generates */}
       {!itinerary && !loading && (

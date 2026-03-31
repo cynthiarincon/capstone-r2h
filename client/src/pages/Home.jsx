@@ -1,5 +1,5 @@
 import medellin from '../assets/medellin.png'
-import cartagena from '../assets/Cartagena.png'
+import cartagena from '../assets/cartagena.png'
 import sanandres from '../assets/sanandres.png'
 import amazonas from '../assets/amazonas.png'
 import pereira from '../assets/pereira.png'
