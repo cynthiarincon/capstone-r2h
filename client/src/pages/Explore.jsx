@@ -138,7 +138,7 @@ function Explore() {
           if (match?.regionId) {
             const regionName = regions.find(r => r.id === match.regionId)?.name
             if (regionName) {
-              fetch(`http://localhost:3000/api/listings?region=${regionName}`)
+              fetch(`${import.meta.env.VITE_API_URL}/api/listings?region=${regionName}`)
                 .then(r => r.json())
                 .then(data => setListings(data))
                 .catch(err => console.error('Failed to load listings', err))

@@ -28,7 +28,7 @@ function Account() {
   // gets all saved trips for the logged in user from the database
   const fetchSavedTrips = async (token) => {
     try {
-      const response = await fetch('http://localhost:3000/api/trips', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/api/trips', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await response.json()

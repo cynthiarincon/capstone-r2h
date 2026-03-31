@@ -37,7 +37,7 @@ function HostDashboard() {
   const fetchMyListings = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:3000/api/mylistings', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/api/mylistings', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await response.json()
@@ -78,7 +78,7 @@ function HostDashboard() {
 
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:3000/api/listings', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/api/listings', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

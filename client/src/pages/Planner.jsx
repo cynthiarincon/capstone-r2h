@@ -61,7 +61,7 @@ function Planner() {
   const fetchSavedTrips = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:3000/api/trips', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/api/trips', {
         headers: { Authorization: `Bearer ${token}` }
       })
       const data = await response.json()
@@ -91,7 +91,7 @@ function Planner() {
     setLoading(true)
     setItinerary(null)
     try {
-      const response = await fetch('http://localhost:3000/api/generateTrip', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/api/generateTrip', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ region, duration, style, group, selectedListings })
@@ -111,7 +111,7 @@ function Planner() {
   const handleSaveTrip = async () => {
     try {
       const token = localStorage.getItem('token')
-      const response = await fetch('http://localhost:3000/api/saveTrip', {
+      const response = await fetch('${import.meta.env.VITE_API_URL}/api/saveTrip', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
