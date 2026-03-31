@@ -51,6 +51,26 @@ const regionInfo = [
   }
 ]
 
+// manually translate common spanish words from api-colombia
+const translateWord = (word) => {
+  if (!word) return word
+  const translations = {
+    'Internacional': 'International',
+    'internacional': 'International',
+    'Nacional': 'National',
+    'nacional': 'National',
+    'Regional': 'Regional',
+    'regional': 'Regional',
+    'Militar': 'Military',
+    'militar': 'Military',
+    'Privado': 'Private',
+    'privado': 'Private',
+    'Público': 'Public',
+    'público': 'Public',
+  }
+  return translations[word] || word
+}
+
 function Explore() {
   const [departments, setDepartments] = useState([])
   const [touristic, setTouristic] = useState([])
@@ -311,7 +331,9 @@ function Explore() {
                   {deptAirports.map(a => (
                     <div key={a.id} className="detail-item">
                       <strong>{a.name}</strong>
-                      <p className="detail-desc">Type: {a.type} | IATA: {a.iataCode}</p>
+                      <p className="detail-desc">
+                        Type: {translateWord(a.type)} | IATA: {a.iataCode}
+                      </p>
                     </div>
                   ))}
                 </div>
